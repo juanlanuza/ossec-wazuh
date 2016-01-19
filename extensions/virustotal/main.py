@@ -98,15 +98,20 @@ def retrieve_results_md5(MD5, myPublicKey):
 		return json_data
 	except:
 		# Not possible connection with VirusTotal Database
+		return False
 		return {u'response_code': -1, u'more_info': u'error connection with VirusTotal DB'}
+		# return json.loads("'response_code': -1, 'more_info': 'error connection with VirusTotal DB'"
 
 # Extract info from VT report : positive, total
 def parser_json_result(vt_answer):
 	#if there is any result, response code from vt is 1, otherwise there is not results
-	if vt_answer.get("response_code") == 1:
+	if vt_answer is False:
+		return False
+	elif vt_answer.get("response_code") == 1:
 		return (vt_answer.get("positives"), vt_answer.get("total"))
 	else:
 		return False
+
 
 #extract previous last entry for this agent in our json db
 # if there is not any data for this agent, is going to create in our db
@@ -123,7 +128,7 @@ def extract_last_entry(agent_path):
 
 	if updated is True:
 		with open('local_data.json', 'w') as f:
-			f.write(json.dumps(tree_data))
+			f.write(json.dumps(tree_data, indent=4))
 
 	return last_entry_found
 
@@ -136,7 +141,7 @@ def update_db(agent_path, new_last_entry):
 
 	with open('local_data.json', 'w+') as f:
 		tree_data["agents"][ agent ] = new_last_entry
-		f.write(json.dumps(tree_data))
+		f.write(json.dumps(tree_data, indent=4))
 		f.close()
 
 
