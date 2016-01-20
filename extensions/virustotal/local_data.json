@@ -1,4 +1,12 @@
 {
+    "local_conf_vt": {
+        "public_KEY": "True",
+        "frecuency": 15,
+        "syscheck_folder": "./syscheck/",
+        "syscheck_folder_comment": "the folder by default is: /var/ossec/queue/syscheck/",
+        "API_Key": "826817e7386257a1a2a516a00ac0b11ab230c2a841da7892d17ac678ebdb880b",
+        "frecuency__comment": "VT restrictions: 1 request every 15 seconds for public free key"
+    },
     "agents": {
         "(jessie73-fool) 192.168.1.53-_syscheck": "1427746962 /home/user/myFiles/6.file\n",
         "(jessie72) 192.168.1.72-_syscheck": "1427746962 /home/user/myFiles/6.file\n",

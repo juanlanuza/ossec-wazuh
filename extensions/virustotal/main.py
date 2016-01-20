@@ -16,8 +16,12 @@ wait_time = 15
 dir = "./syscheck/"
 
 # Scan folder searching queue files from syscheck in syscheck folder
-def get_queue_files(dir):
+def get_queue_files():
  	
+ 	with open('local_data.json', 'r') as data_file: 
+ 		tree_data = json.load(data_file)
+ 		dir = tree_data["local_conf_vt"]["syscheck_folder"]
+
 	import os
 	list_files = []
 
@@ -30,10 +34,13 @@ def get_queue_files(dir):
 	return list_files
 
 # Scan queue file, line by line 
-def scan_file(file_path, last_entry, myPublicKey ):
-	#examples, final version should be parametres: file_path, last_entry, virustotal api key	
+def scan_file(file_path, last_entry):
+	#examples, final version should be parametres: file_path, last_entry	
 
 	file = open(file_path, 'r').readlines()
+
+	#get (vt API key, vt restrintions)
+	vt_config = extract_vt_config()
 
 	count = 0
 	for line in reversed(file):
@@ -52,13 +59,13 @@ def scan_file(file_path, last_entry, myPublicKey ):
 			new_last_entry = date_and_name
 			update_db(file_path, new_last_entry)
 		#TODO: first process data from first file do not need to sleep, need to fix it
-		time.sleep(15) #TODO: change 15 by parametre (Limit for public key 1 request/ 15 seconds)
+		time.sleep(vt_config[1]) 
 		
 		count += 1
 
 		#send md5 to vt and parser results
 		# print retrieve_results_md5(md5sum, myPublicKey)
-		data_vt = parser_json_result( retrieve_results_md5(md5sum, myPublicKey) )
+		data_vt = parser_json_result( retrieve_results_md5(md5sum, vt_config[0]) )
 		
 		print data_vt
 
@@ -132,6 +139,17 @@ def extract_last_entry(agent_path):
 
 	return last_entry_found
 
+#Get our Local configuration
+def extract_vt_config():
+	with open('local_data.json', 'r') as data_file:  
+		tree_data = json.load(data_file)
+		api_key = tree_data["local_conf_vt"]["API_Key"]
+		if tree_data["local_conf_vt"]["public_KEY"] == "True":
+			frec = 15
+		else:
+			frec = tree_data["local_conf_vt"]["frecuency"]
+		return str(api_key), int(frec)
+
 #Update last entry checked in queue file for an agent 
 def update_db(agent_path, new_last_entry):
 	agent = agent_path.split('/')[-1]
@@ -157,8 +175,10 @@ def update_db(agent_path, new_last_entry):
 ############################################################################
 ############################################################################
 
-for queue_file in get_queue_files(dir):
+for queue_file in get_queue_files():
 	print "\nSCANING FILE: ", queue_file
 	print "\nLAST ENTRY FOUND: ", extract_last_entry(queue_file)
-	scan_file(queue_file, extract_last_entry(queue_file), VT_PublicKey)
+	scan_file(queue_file, extract_last_entry(queue_file))
 	print "-----------END SCAN FILE-------------\n\n\n\n"
+
+# print extract_vt_config()
