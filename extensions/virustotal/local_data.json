@@ -8,8 +8,6 @@
         "frecuency__comment": "VT restrictions: 1 request every 15 seconds for public free key"
     },
     "agents": {
-        "(jessie73-fool) 192.168.1.53-_syscheck": "1427746962 /home/user/myFiles/6.file\n",
-        "(jessie72) 192.168.1.72-_syscheck": "1427746962 /home/user/myFiles/6.file\n",
-        "(jessie73-clon) 192.168.1.73-_syscheck": "1427746969 /home/user/myFiles/6.file\n"
+        "(jessie72) 192.168.1.72-_syscheck": "1427746962 /home/user/myFiles/6.file\n"
     }
 }

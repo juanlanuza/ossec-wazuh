@@ -63,3 +63,18 @@ holaaaaaaaaaaaaaaa
 (jessie72) 192.168.1.72 positives/total [23/50] 1427747294 /home/user/myFiles/3.file
 (jessie72) 192.168.1.72 positives/total [17/41] 1427747294 /home/user/myFiles/5.file
 (jessie72) 192.168.1.72 positives/total [32/45] 1427747294 /home/user/myFiles/6.file
+[Timestamp 2016-01-25 10:33:32] [Sender virustotal-devel] [Host(jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 36/46| /home/user/myFiles/5.file |Created date: 2015-03-30 22:49:41 ]
+[Timestamp 2016-01-25 10:33:48] [Sender virustotal-devel] [Host(jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 42/50| /home/user/myFiles/6.file |Created date: 2015-03-30 22:44:19 ]
+[Timestamp 2016-01-25 10:34:05] [Sender virustotal-devel] [Host(jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 14/42| /home/user/myFiles/6.file |Created date: 2015-03-30 22:33:36 ]
+[Timestamp 2016-01-25 10:34:20] [Sender virustotal-devel] [Host(jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 5/55| /home/user/myFiles/2.file |Created date: 2015-03-30 22:28:14 ]
+[Timestamp 2016-01-25 10:34:37] [Sender virustotal-devel] [Host(jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 23/50| /home/user/myFiles/3.file |Created date: 2015-03-30 22:28:14 ]
+[Timestamp 2016-01-25 10:34:53] [Sender virustotal-devel] [Host(jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 17/41| /home/user/myFiles/5.file |Created date: 2015-03-30 22:28:14 ]
+[Timestamp 2016-01-25 10:35:09] [Sender virustotal-devel] [Host(jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 32/45| /home/user/myFiles/6.file |Created date: 2015-03-30 22:28:14 ]
+[Timestamp 2016-01-25 10:46:36] [Sender virustotal-devel] [Host (jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 50/55|/home/user/myFiles/6.file|Created date: 2015-03-30 23:21:53]
+[Timestamp 2016-01-25 10:46:51] [Sender virustotal-devel] [Host (jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 36/46|/home/user/myFiles/5.file|Created date: 2015-03-30 22:49:41]
+[Timestamp 2016-01-25 10:47:08] [Sender virustotal-devel] [Host (jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 42/50|/home/user/myFiles/6.file|Created date: 2015-03-30 22:44:19]
+[Timestamp 2016-01-25 10:47:24] [Sender virustotal-devel] [Host (jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 14/42|/home/user/myFiles/6.file|Created date: 2015-03-30 22:33:36]
+[Timestamp 2016-01-25 10:47:40] [Sender virustotal-devel] [Host (jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 5/55|/home/user/myFiles/2.file|Created date: 2015-03-30 22:28:14]
+[Timestamp 2016-01-25 10:47:56] [Sender virustotal-devel] [Host (jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 23/50|/home/user/myFiles/3.file|Created date: 2015-03-30 22:28:14]
+[Timestamp 2016-01-25 10:48:12] [Sender virustotal-devel] [Host (jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 17/41|/home/user/myFiles/5.file|Created date: 2015-03-30 22:28:14]
+[Timestamp 2016-01-25 10:48:29] [Sender virustotal-devel] [Host (jessie72) 192.168.1.72] [Log: Suspicious file identified. Ratio detected: 32/45|/home/user/myFiles/6.file|Created date: 2015-03-30 22:28:14]

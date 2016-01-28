@@ -3,6 +3,7 @@ import time
 import simplejson as json
 import urllib
 import urllib2
+import datetime
 
 #Get your own Public Key in www.virustotal.com
 VT_PublicKey = "826817e7386257a1a2a516a00ac0b11ab230c2a841da7892d17ac678ebdb880b"
@@ -84,7 +85,14 @@ def scan_file(file_path, last_entry):
 
 # Write the log in our file "./log_vt" 
 def write_log(info_list):
-	log_string = info_list[0][:-10] + " positives/total [" + str(info_list[1]) + '/' + str(info_list[2]) + "] " + info_list[3]
+	
+	timestamp = datetime.datetime.fromtimestamp(  int(info_list[3].split(' ')[0])  ).strftime('%Y-%m-%d %H:%M:%S')
+	file = info_list[3].split(' ')[1].strip()
+	timenow = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+	#[Time ][Host ] [Sender virustotal-devel][Log: Suspicious file identified. Ratio detected: 4/42|  /file.txt |Created date: 2013...  ]
+	log_string = "[Timestamp " + timenow +"] [Sender virustotal-devel] [Host " + info_list[0][:-10] + "] [Log: Suspicious file identified. Ratio detected: " + str(info_list[1]) + '/' + str(info_list[2]) +"|" + file + "|Created date: " + timestamp + "]\n" 
+	# print log_string
 	with open('log_vt', 'ab') as data_file:
 		data_file.write(log_string)
 
