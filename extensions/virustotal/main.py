@@ -1,8 +1,8 @@
-import xml.etree.ElementTree as ET
 import time
 import simplejson as json
 import urllib
 import urllib2
+import os
 from datetime import datetime
 
 
@@ -12,8 +12,7 @@ def get_queue_files():
  	with open('local_data.json', 'r') as data_file: 
  		tree_data = json.load(data_file)
  		dir = tree_data["local_conf_vt"]["syscheck_folder"]
-
-	import os
+	
 	list_files = []
 
 	# Check and filter results, all queue files are called: "(agent_name) 192.0.0.0-_syscheck"
@@ -39,12 +38,12 @@ def scan_queue_file(file_path, last_entry, countZ):
 		line = line.split(':',5)		
 		md5sum = line[4]
 		date_and_name = line[5].split('!')[1]
-		print "info this line:", md5sum, date_and_name
+		# print "info this line:", md5sum, date_and_name
 		# example output: "1427747294 /home/user/myFiles/3.file"
 
 		#checked already, leaving this agent syscheck file
 		if last_entry == date_and_name:
-			print "EXIT FOR THIS FILE----------------------@\n"
+			# print "EXIT FOR THIS FILE----------------------@\n"
 			break
 
 		if (countZ == 0 and count ==0) is False :
@@ -272,6 +271,22 @@ def update_db(agent_path, new_last_entry):
 		f.write(json.dumps(tree_data, indent=4))
 		f.close()
 
+# This function create a service/Daemon that will execute a det. task
+def summon_daemon():
+
+  	try:
+		# Store the Fork PID
+		pid = os.fork()
+
+		
+		if pid > 0:
+			print 'PID: %d' % pid
+			os._exit(0)
+
+	except OSError, error:
+		print 'Unable to fork. Error: %d (%s)' % (error.errno, error.strerror)
+		os._exit(1)
+	main_vt()
 
 ############################################################################
 ############################################################################
@@ -285,10 +300,17 @@ def update_db(agent_path, new_last_entry):
 ############################################################################
 ############################################################################
 
-countZ = 0
-for queue_file in get_queue_files():
-	print "\nSCANING FILE: ", queue_file
-	print "\nLAST ENTRY FOUND: ", extract_last_entry(queue_file)
-	scan_queue_file(queue_file, extract_last_entry(queue_file), countZ)
-	print "-----------END SCAN FILE-------------\n\n\n\n"
-	countZ += 1
+def main_vt():
+	while True:
+		print "\nRound starts here:\n"
+		countZ = 0
+		for queue_file in get_queue_files():
+			# print "\nSCANING FILE: ", queue_file
+			# print "\nLAST ENTRY FOUND: ", extract_last_entry(queue_file)
+			scan_queue_file(queue_file, extract_last_entry(queue_file), countZ)
+			# print "-----------END SCAN FILE-------------\n\n\n\n"
+			countZ += 1
+		time.sleep(60)
+
+if __name__ == "__main__":
+	summon_daemon()
