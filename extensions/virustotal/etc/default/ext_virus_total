@@ -1,0 +1,7 @@
+#This file goes to /etc/default/ela
+VT_USER=root         #$RUN_AS, username to run ext_virus_total under, the default is root
+VT_GROUP=root        #$RUN_GROUP, group to run root under, the default is root
+VT_HOME=/home/user/Desktop/virustotal         #$APP_PATH, the location of ext_virus_total.py, the default is /opt/ext_virus_total
+VT_DATA=/opt/ext_virus_total         #$DATA_DIR, the location of ext_virus_total.db, cache, logs, the default is /opt/ext_virus_total
+VT_PIDFILE=/var/run/ext_virus_total/ext_virus_total.pid      #$PID_FILE, the location of ext_virus_total.pid, the default is /var/run/ext_virus_total/ext_virus_total.pid
+PYTHON_BIN=/usr/bin/python2.7      #$DAEMON, the location of the python binary, the default is /usr/bin/python2.7
