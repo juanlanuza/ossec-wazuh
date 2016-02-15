@@ -170,7 +170,7 @@ def puke_log(hostname, file_name, file_time, log_json):
 
 	write_anylog( "[Time "+ time_now() + "] [Sender virustotal-devel]  [Message " + message + "]  [Host " + hostname + "] [Percent " + percent_msg + "]\n"  )
 
-# Translate the percent of dangerousness to text message
+# Translate the percent of dangerousness to human text message
 # Switch case % for level of dangerousness
 def get_percent(prcnt):
   while True:
