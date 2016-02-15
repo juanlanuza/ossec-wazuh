@@ -1,20 +1,24 @@
 {
-    "local_conf_vt": {
-        "public_KEY": "True",
-        "TODO_info_in_logs_configurable": "yes or not for scandate/results/link",
-        "TODO_add_agents_info": "first/last time seem, last entry...",
-        "frecuency": 15,
-        "syscheck_folder": "./syscheck/",
-        "syscheck_folder_comment": "the folder by default is: /var/ossec/queue/syscheck/",
-        "TODO_separate json files": "config file and agents file",
-        "API_Key": "826817e7386257a1a2a516a00ac0b11ab230c2a841da7892d17ac678ebdb880b",
-        "TODO_add_all_events_logs?": "yes or not",
-        "frecuency__comment": "VT restrictions: 1 request every 15 seconds for public free key"
-    },
     "agents": {
-        "(agentnew) 192.168.1.70-_syscheck": "None",
-        "(jessie73-fool) 192.168.1.53-_syscheck": "1427746962 /home/user/myFiles/6.file\n",
-        "(jessie72) 192.168.1.72-_syscheck": "1427746962 /home/user/myFiles/6.file\n",
-        "(jessie73-clon) 192.168.1.73-_syscheck": "1427746969 /home/user/myFiles/6.file\n"
+        "(agentnew) 192.168.1.70-_syscheck": {
+            "LTS": "2016.02.15 18:03:43",
+            "FTS": "2016.02.15 13:36:12",
+            "last_entry": "1427746962 /home/user/myFiles/6.file\n"
+        },
+        "(jessie73-fool) 192.168.1.53-_syscheck": {
+            "LTS": "2016.02.15 18:07:18",
+            "FTS": "2016.02.15 18:07:18",
+            "last_entry": "1427746962 /home/user/myFiles/6.file\n"
+        },
+        "(jessie72) 192.168.1.72-_syscheck": {
+            "LTS": "2016.02.15 18:03:43",
+            "FTS": "2016.02.15 13:49:00",
+            "last_entry": "1427746962 /home/user/myFiles/6.file\n"
+        },
+        "(jessie73-clon) 192.168.1.73-_syscheck": {
+            "LTS": "2016.02.15 18:03:43",
+            "FTS": "2016.02.15 17:36:22",
+            "last_entry": "1427746969 /home/user/myFiles/6.file\n"
+        }
     }
 }
