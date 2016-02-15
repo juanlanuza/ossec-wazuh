@@ -20,6 +20,15 @@ Configuration: vito_config.py
 Execute VirusTotal devel for OSSEC:
 	
 	$python main.py
+	
+-The new way to execute the app
+
+	-insert ext_virus_total from /virus_total/etc/default en /etc/default
+
+	-insert ext_virus_total.sh from /virus_total/etc/int.d en /etc/init.d
+
+	-The variable with the path for the file ext_virus_total.py must be filled in file ext_virus_total inside /etc/default
+	-VT_HOME=/home/user/Desktop/virustotal
 
 	
 All events/logs can be checked in:
