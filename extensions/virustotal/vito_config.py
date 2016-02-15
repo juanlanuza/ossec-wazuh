@@ -4,7 +4,7 @@
 
 
 ## Get your key in virustotal.com
-personal_API_Key = "###YOUR API KEY HERE###"
+personal_API_Key = "###"
 
 
 ## Public keys are free --> limitations: a scan every 15 seconds
@@ -22,6 +22,9 @@ log_file = "log_vt"
 
 ## Agents DB for VirusTotal-Devel for Wazuh
 db_file = "local_data.json"
+
+## Time (in secons) between scans in syscheck folder make by VirusTotal-Devel for Wazuh
+sleep_time = 60
 
 
 #####
