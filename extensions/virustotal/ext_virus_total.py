@@ -1,5 +1,6 @@
 import time
-import simplejson as json
+#import simplejson as json
+import json
 import urllib
 import urllib2
 import os
@@ -8,11 +9,11 @@ from datetime import datetime
 
 # Scan folder searching queue files from syscheck in syscheck folder
 def get_queue_files():
- 	
- 	with open('local_data.json', 'r') as data_file: 
+
+ 	with open('local_data.json', 'r') as data_file:
  		tree_data = json.load(data_file)
  		dir = tree_data["local_conf_vt"]["syscheck_folder"]
-	
+
 	list_files = []
 
 	# Check and filter results, all queue files are called: "(agent_name) 192.0.0.0-_syscheck"
@@ -23,9 +24,9 @@ def get_queue_files():
 
 	return list_files
 
-# Scan queue file, line by line 
+# Scan queue file, line by line
 def scan_queue_file(file_path, last_entry, countZ):
-	#examples, final version should be parametres: file_path, last_entry	
+	#examples, final version should be parametres: file_path, last_entry
 
 	file = open(file_path, 'r').readlines()
 
@@ -35,7 +36,7 @@ def scan_queue_file(file_path, last_entry, countZ):
 	count = 0
 	update = False
 	for line in reversed(file):
-		line = line.split(':',5)		
+		line = line.split(':',5)
 		md5sum = line[4]
 		date_and_name = line[5].split('!')[1]
 		# print "info this line:", md5sum, date_and_name
@@ -53,7 +54,7 @@ def scan_queue_file(file_path, last_entry, countZ):
 			new_last_entry = date_and_name
 			update = True
 		count += 1
-		
+
 		results_vt = retrieve_results_md5(md5sum, vt_config[0])
 
 		resp_code = results_vt.get("response_code")
@@ -63,13 +64,13 @@ def scan_queue_file(file_path, last_entry, countZ):
 			puke_error_log()
 			update = False
 			break
-			
+
 		else:
 			#Obtaining info
 			file_time = datetime.fromtimestamp(  int(date_and_name.split(' ')[0])  ).strftime('%Y-%m-%d %H:%M:%S')
 			file_name = file = date_and_name.split(' ')[1].strip()
 			hostname = file_path.split('/')[-1][:-10]
-			
+
 			if resp_code == 0:
 				#non data in vt
 				puke_noD_log(hostname, file_name, file_time)
@@ -82,7 +83,7 @@ def scan_queue_file(file_path, last_entry, countZ):
 		# #send md5 to vt and parser results
 		# # print retrieve_results_md5(md5sum, myPublicKey)
 		# data_vt = parser_json_result( retrieve_results_md5(md5sum, vt_config[0]) )
-		
+
 		# print data_vt
 		# #if there is any positive result
 		# if data_vt is False:
@@ -104,20 +105,20 @@ def scan_queue_file(file_path, last_entry, countZ):
 		# 	hostname = file_path.split('/')[-1]
 		# 	puke_log(hostname)
 		# 	"""
-	
+
 	#if true: update_db(file_path, new_last_entry)
 	if update is True:
 		update_db(file_path, new_last_entry)
 
-# ###OBSOLOTE### Write the log in our file "./log_vt" 
+# ###OBSOLOTE### Write the log in our file "./log_vt"
 def write_log(info_list):
-	
+
 	timestamp = datetime.fromtimestamp(  int(info_list[3].split(' ')[0])  ).strftime('%Y-%m-%d %H:%M:%S')
 	file = info_list[3].split(' ')[1].strip()
 	timenow = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
 
 	#[Time ][Host ] [Sender virustotal-devel][Log: Suspicious file identified. Ratio detected: 4/42|  /file.txt |Created date: 2013...  ]
-	log_string = "[Timestamp " + timenow +"] [Sender virustotal-devel] [Host " + info_list[0][:-10] + "] [Log: Suspicious file identified. Ratio detected: " + str(info_list[1]) + '/' + str(info_list[2]) +"|" + file + "|Created date: " + timestamp + "]\n" 
+	log_string = "[Timestamp " + timenow +"] [Sender virustotal-devel] [Host " + info_list[0][:-10] + "] [Log: Suspicious file identified. Ratio detected: " + str(info_list[1]) + '/' + str(info_list[2]) +"|" + file + "|Created date: " + timestamp + "]\n"
 	# print log_string
 	with open('log_vt', 'ab') as data_file:
 		data_file.write(log_string)
@@ -133,15 +134,15 @@ def puke_log(hostname, file_name, file_time, log_json):
 
 	#File is being scanned in VT servers | /home/user/myFiles/6.file | Created date: 2015-03-30 22:28:14 | Permalink: https...
 	if plus < 0:
-		message = ( "File is being scanned in VT servers | " + file_name + 
+		message = ( "File is being scanned in VT servers | " + file_name +
 			" | Created date: " + file_time + " | Permalink: " + log_json.get("permalink") )
 
 	#Safe file, scan date:  2010-05-15 03:38:44 |/home/user/myFiles/6.file |Created date: 2015-03-30 22:28:14| Permalink: https... ]
 	elif plus == 0:
 		#Safe file
-		message = ( "Safe file, scan date: " + log_json.get("scan_date") + 
-			" | " + file_name + 
-			" | Created date: " + file_time + 
+		message = ( "Safe file, scan date: " + log_json.get("scan_date") +
+			" | " + file_name +
+			" | Created date: " + file_time +
 			" | Permalink: " + log_json.get("permalink") )
 
 	#Suspicious file identified. Ratio detected: 32/45 (% message), 2010-05-15|/h/u/file |Created date: 2015-03-30| Results: Avira: TrojanV, Panda: TrojanZ ... | Permalink: https...
@@ -161,9 +162,9 @@ def puke_log(hostname, file_name, file_time, log_json):
 
 		message = ( "Suspicious file identified. Ratio detected: " + str(pts) +"/"+ str(tot) +
 			" (" + str(percent) + "%" + percent_msg +
-			"), scan date: " + log_json.get("scan_date") + 
-			" | " + file_name + 
-			" | Created date: " + file_time + 
+			"), scan date: " + log_json.get("scan_date") +
+			" | " + file_name +
+			" | Created date: " + file_time +
 			" | Results: " + scans_msg +
 			" | Permalink: " + log_json.get("permalink") )
 
@@ -179,7 +180,7 @@ def puke_error_log():
 # [Time 2016.02.03 20:44:04] [Sender virustotal-devel]  [Message No Data in VirusTotal, please upload this file manually]  [Host Hostname]
 def puke_noD_log(hostname, file_name, file_time):
 	message = ("No Data in VirusTotal, please upload this file manually"
-		" | " + file_name + 
+		" | " + file_name +
 		" | Created date: " + file_time	)
 
 	write_anylog( "[Time "+ time_now() + "] [Sender virustotal-devel]  [Message " + message + "]  [Host " + hostname + "]\n"  )
@@ -204,7 +205,7 @@ def retrieve_results_md5(MD5, myPersonalKey):
 
 	# print "Scanning file in VT"
 	try:
-		
+
 		url = "https://www.virustotal.com/vtapi/v2/file/report"
 		parameters = {"resource": MD5,"apikey": myPersonalKey}
 		data = urllib.urlencode(parameters)
@@ -234,8 +235,8 @@ def parser_json_result(vt_answer):
 # if there is not any data for this agent, is going to create in our db
 def extract_last_entry(agent_path):
 	agent = agent_path.split('/')[-1]
-	with open('local_data.json', 'r') as data_file:  
-		updated = False  
+	with open('local_data.json', 'r') as data_file:
+		updated = False
 		tree_data = json.load(data_file)
 		last_entry_found = tree_data["agents"].get( agent )
 		if last_entry_found == None:
@@ -250,7 +251,7 @@ def extract_last_entry(agent_path):
 
 #Get our Local configuration
 def extract_vt_config():
-	with open('local_data.json', 'r') as data_file:  
+	with open('local_data.json', 'r') as data_file:
 		tree_data = json.load(data_file)
 		api_key = tree_data["local_conf_vt"]["API_Key"]
 		if tree_data["local_conf_vt"]["public_KEY"] == "True":
@@ -259,7 +260,7 @@ def extract_vt_config():
 			frec = tree_data["local_conf_vt"]["frecuency"]
 		return str(api_key), int(frec)
 
-#Update last entry checked in queue file for an agent 
+#Update last entry checked in queue file for an agent
 def update_db(agent_path, new_last_entry):
 	agent = agent_path.split('/')[-1]
 
@@ -272,13 +273,13 @@ def update_db(agent_path, new_last_entry):
 		f.close()
 
 # This function create a service/Daemon that will execute a det. task
-def summon_daemon():
+def vt_daemon():
 
   	try:
 		# Store the Fork PID
 		pid = os.fork()
 
-		
+
 		if pid > 0:
 			print 'PID: %d' % pid
 			os._exit(0)
@@ -313,4 +314,4 @@ def main_vt():
 		time.sleep(60)
 
 if __name__ == "__main__":
-	summon_daemon()
+	vt_daemon()
