@@ -137,15 +137,15 @@ def puke_log(hostname, file_name, file_time, log_json):
 def get_percent(prcnt):
 
     if prcnt>=0 and prcnt<11:
-        return "0/-10% Malicious file"
+        return "0--10% Malicious file"
     elif prcnt>10 and prcnt<31:
-        return ("11­30% Dangeruos file")
+        return "11-­30% Dangeruos file"
     elif prcnt>30 and prcnt<61:
-        return ("31­60% Your system is in danger")
+        return "31-­60% Your system is in danger"
     elif prcnt>60 and prcnt<101:
-        return ("61­100% you are fucked")
+        return "61-­100% you are fucked"
     else:
-        return ("Error with percent!!")
+        return "Error with percent!!"
 	
 	
 #create a error log, not internet connection or wrong VT API key
