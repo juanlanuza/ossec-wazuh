@@ -137,7 +137,7 @@ def puke_log(hostname, file_name, file_time, log_json):
 def get_percent(prcnt):
 
     if prcnt>=0 and prcnt<11:
-        return "0­10% Malicious file"
+        return "0/-10% Malicious file"
     elif prcnt>10 and prcnt<31:
         return ("11­30% Dangeruos file")
     elif prcnt>30 and prcnt<61:
