@@ -19,7 +19,7 @@ Configuration: vito_config.py
 		
 Execute VirusTotal devel for OSSEC:
 	
-	$python main.py
+	$python ext_virus_total.py
 	
 -The new way to execute the app
 
@@ -32,8 +32,8 @@ Execute VirusTotal devel for OSSEC:
 
 	
 All events/logs can be checked in:
-
-	log_vt
+	See some examples in:
+		log_vt
 
 
 Logtest by OSSEC:
