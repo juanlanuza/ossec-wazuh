@@ -1,0 +1,63 @@
+LOGTEST
+
+[Time 2016.02.03 20:40:16] [Sender virustotal-devel]  [Message ERROR 509: Not connection with VirusTotal DB, please check your internet connection or VirusTotal API Key]
+
+
+**Phase 1: Completed pre-decoding.
+       full event: '[Time 2016.02.03 20:40:16] [Sender virustotal-devel]  [Message ERROR 509: Not connection with VirusTotal DB, please check your internet connection or VirusTotal API Key]'
+       hostname: 'debian'
+       program_name: 'virustotal-devel'
+       log: 'ERROR 509: Not connection with VirusTotal DB, please check your internet connection or VirusTotal API Key'
+
+**Phase 2: Completed decoding.
+       No decoder matched.
+
+**Phase 3: Completed filtering (rules).
+       Rule id: '1002'
+       Level: '2'
+       Description: 'Unknown problem somewhere in the system.'
+**Alert to be generated.
+
+########################################################
+
+[Time 2016.02.08 13:17:23] [Sender virustotal-devel]  [Message No Data in VirusTotal, please upload this file manually | /var/ossec/etc/internal_options.conf | Created date: 2015-05-06 20:11:47]  [Host (jessie73-clon) 192.168.1.73]
+
+
+**Phase 1: Completed pre-decoding.
+       full event: '[Time 2016.02.08 13:17:23] [Sender virustotal-devel]  [Message No Data in VirusTotal, please upload this file manually | /var/ossec/etc/internal_options.conf | Created date: 2015-05-06 20:11:47]  [Host (jessie73-clon) 192.168.1.73]'
+       hostname: '(jessie73-clon) 192.168.1.73'
+       program_name: 'virustotal-devel'
+       log: 'No Data in VirusTotal, please upload this file manually | /var/ossec/etc/internal_options.conf | Created date: 2015-05-06 20:11:47'
+
+**Phase 2: Completed decoding.
+       No decoder matched.
+
+#####################################################
+
+[Time 2016.02.08 13:17:05] [Sender virustotal-devel]  [Message Safe file, scan date: 2015-07-03 18:01:59 | /home/user/myFiles/file1 | Created date: 2015-05-06 20:12:52 | Permalink: https://www.virustotal.com/file/cd2eb0837c9b4c962c22d2ff8b5441b7b45805887f051d39bf133b583baf6860/analysis/1435946519/]  [Host (jessie73-clon) 192.168.1.73]
+
+
+**Phase 1: Completed pre-decoding.
+       full event: '[Time 2016.02.08 13:17:05] [Sender virustotal-devel]  [Message Safe file, scan date: 2015-07-03 18:01:59 | /home/user/myFiles/file1 | Created date: 2015-05-06 20:12:52 | Permalink: https://www.virustotal.com/file/cd2eb0837c9b4c962c22d2ff8b5441b7b45805887f051d39bf133b583baf6860/analysis/1435946519/]  [Host (jessie73-clon) 192.168.1.73]'
+       hostname: '(jessie73-clon) 192.168.1.73'
+       program_name: 'virustotal-devel'
+       log: 'Safe file, scan date: 2015-07-03 18:01:59 | /home/user/myFiles/file1 | Created date: 2015-05-06 20:12:52 | Permalink: https://www.virustotal.com/file/cd2eb0837c9b4c962c22d2ff8b5441b7b45805887f051d39bf133b583baf6860/analysis/1435946519/'
+
+**Phase 2: Completed decoding.
+       No decoder matched.
+
+
+####################################################
+
+[Time 2016.02.08 13:12:47] [Sender virustotal-devel]  [Message Suspicious file identified. Ratio detected: 14/42 (33.33% Dangerous!), scan date: 2012-04-28 08:19:41 | /home/user/myFiles/6.file | Created date: 2015-03-30 22:33:36 | Results: K7AntiVirus: Virus, F-Prot: W32/Virut.AI!Generic, TrendMicro-HouseCall: PE_VIRUX.J, Kaspersky: Virus.Win32.Suspic.gen, Emsisoft: Virus.Win32.Vitru!IK, Comodo: Virus.Win32.Virut.Ce, VIPRE: LooksLike.Win32.InfectedFile!A (v), TrendMicro: PE_VIRUX.J, Sophos: Sus/Scribble-B, Jiangmin: Win32/Virut.bp, ViRobot: Win32.Virut.AM, Commtouch: W32/Virut.AI!Generic, Ikarus: Virus.Win32.Vitru, AVG: Suspicion: unknown virus | Permalink: https://www.virustotal.com/file/61c6cba5f1724b95471109024ff00f3dad2d804a8c07bd2ef37dc1e5a38844a2/analysis/1335601181/]  [Host (jessie72) 192.168.1.72]
+
+
+**Phase 1: Completed pre-decoding.
+       full event: '[Time 2016.02.08 13:12:47] [Sender virustotal-devel]  [Message Suspicious file identified. Ratio detected: 14/42 (33.33% Dangerous!), scan date: 2012-04-28 08:19:41 | /home/user/myFiles/6.file | Created date: 2015-03-30 22:33:36 | Results: K7AntiVirus: Virus, F-Prot: W32/Virut.AI!Generic, TrendMicro-HouseCall: PE_VIRUX.J, Kaspersky: Virus.Win32.Suspic.gen, Emsisoft: Virus.Win32.Vitru!IK, Comodo: Virus.Win32.Virut.Ce, VIPRE: LooksLike.Win32.InfectedFile!A (v), TrendMicro: PE_VIRUX.J, Sophos: Sus/Scribble-B, Jiangmin: Win32/Virut.bp, ViRobot: Win32.Virut.AM, Commtouch: W32/Virut.AI!Generic, Ikarus: Virus.Win32.Vitru, AVG: Suspicion: unknown virus | Permalink: https://www.virustotal.com/file/61c6cba5f1724b95471109024ff00f3dad2d804a8c07bd2ef37dc1e5a38844a2/analysis/1335601181/]  [Host (jessie72) 192.168.1.72]'
+       hostname: '(jessie72) 192.168.1.72'
+       program_name: 'virustotal-devel'
+       log: 'Suspicious file identified. Ratio detected: 14/42 (33.33% Dangerous!), scan date: 2012-04-28 08:19:41 | /home/user/myFiles/6.file | Created date: 2015-03-30 22:33:36 | Results: K7AntiVirus: Virus, F-Prot: W32/Virut.AI!Generic, TrendMicro-HouseCall: PE_VIRUX.J, Kaspersky: Virus.Win32.Suspic.gen, Emsisoft: Virus.Win32.Vitru!IK, Comodo: Virus.Win32.Virut.Ce, VIPRE: LooksLike.Win32.InfectedFile!A (v), TrendMicro: PE_VIRUX.J, Sophos: Sus/Scribble-B, Jiangmin: Win32/Virut.bp, ViRobot: Win32.Virut.AM, Commtouch: W32/Virut.AI!Generic, Ikarus: Virus.Win32.Vitru, AVG: Suspicion: unknown virus | Permalink: https://www.virustotal.com/file/61c6cba5f1724b95471109024ff00f3dad2d804a8c07bd2ef37dc1e5a38844a2/analysis/1335601181/'
+
+**Phase 2: Completed decoding.
+       No decoder matched.
+
