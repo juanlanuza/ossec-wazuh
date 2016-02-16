@@ -111,7 +111,7 @@ def puke_log(hostname, file_name, file_time, log_json):
 		pts = log_json.get("positives")
 		tot = log_json.get("total")
 		percent = '%.2f'%((pts/float(tot))*100)
-		percent_msg = " Dangerous!"
+		percent_msg = get_percent(percent)
 
 		scans_msg = ""
 		for i in log_json.get("scans"):
@@ -131,6 +131,23 @@ def puke_log(hostname, file_name, file_time, log_json):
 
 	write_anylog( "[Time "+ time_now() + "] [Sender virustotal-devel]  [Message " + message + "]  [Host " + hostname + "]\n"  )
 
+	
+# Translate the percent of dangerousness to human text message
+# Switch case % for level of dangerousness
+def get_percent(prcnt):
+
+    if prcnt>=0 and prcnt<11:
+        return ("0­10% Malicious file")
+    elif prcnt>10 and prcnt<31:
+        return ("11­30% Dangeruos file")
+    elif prcnt>30 and prcnt<61:
+        return ("31­60% Your system is in danger")
+    elif prcnt>60 and prcnt<101:
+        return ("61­100% you are fucked")
+    else:
+        return ("Error with percent!!")
+	
+	
 #create a error log, not internet connection or wrong VT API key
 # [Time 2016.02.03 20:44:04] [Sender virustotal-devel]  [Message ERROR 696: Not connection with VirusTotal DB, please check your internet connection or VirusTotal API Key]
 def puke_error_log(code):
@@ -221,7 +238,7 @@ def extract_last_entry(agent_path):
 
 	return last_entry_found
 
-#Get our Local configuration
+#Get our Local configuration ####OBSOLOTE###
 def extract_vt_config():
 	with open('local_data.json', 'r') as data_file:  
 		tree_data = json.load(data_file)
