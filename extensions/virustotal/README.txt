@@ -23,12 +23,12 @@ Execute VirusTotal devel for OSSEC:
 	
 -The new way to execute the app
 
-	-insert ext_virus_total from /virus_total/etc/default en /etc/default
+	-from /virustotal/etc/default  copy the ext_virus_total file to /etc/default
 
-	-insert ext_virus_total.sh from /virus_total/etc/int.d en /etc/init.d
+	-In /etc/default/ext_virus_total change the variable (VT_HOME) that contains the path for the filr ext_virus_total.py 
+	-VT_HOME= path where you have downloaded the virustotal pacage (e.g VT_HOME=/home/user/Desktop/virustotal)
 
-	-The variable with the path for the file ext_virus_total.py must be filled in file ext_virus_total inside /etc/default
-	-VT_HOME=/home/user/Desktop/virustotal
+	-from /virustotal/etc/int.d copy the ext_virus_total.sh file to /etc/init.d
 
 	
 All events/logs can be checked in:
