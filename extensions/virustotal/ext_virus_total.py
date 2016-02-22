@@ -14,9 +14,10 @@ def get_queue_files():
 	
 	list_files = []
 
-	# Check and filter results, all queue files are called: "(agent_name) 192.0.0.0-_syscheck"
+	# Check and filter results, all queue files are called: "(agent_name) 192.0.0.0->syscheck"
 	for file in os.listdir(syscheck_folder):
-		if file[-10:] == "-_syscheck":
+		endings = ["-_syscheck", "->syscheck"]
+		if file[-10:] in endings:
 			file = syscheck_folder+file
 			list_files.append(file)
 
@@ -26,10 +27,7 @@ def get_queue_files():
 def scan_queue_file(file_path, last_entry, countZ):
 	#examples, final version should be parametres: file_path, last_entry	
 
-	file = open(file_path, 'r').readlines()
-
-	# #get (vt API key, vt restrintions)
-	# vt_config = extract_vt_config()
+	file = open( os.path.abspath( file_path ), 'r').readlines()
 	
 	if is_public_key:
 		frecuency_key = 15
@@ -293,19 +291,21 @@ def summon_daemon():
 
 def main_vt():
 	while True:
-		# print "\nRound starts here:\n"
+		print "Round starts here:\n"
 		countZ = 0
 
 		if len(personal_API_Key) == 64:
 			for queue_file in get_queue_files():
-				# print "\nSCANING FILE: ", queue_file
-				# print "\nLAST ENTRY FOUND: ", extract_last_entry(queue_file)
+				print "SCANING FILE: ", queue_file
+				print "LAST ENTRY FOUND: ", extract_last_entry(queue_file)
 				scan_queue_file(queue_file, extract_last_entry(queue_file), countZ)
-				# print "-----------END SCAN FILE-------------\n\n\n\n"
+				print "-----------File scanned successfully-------------\n"
 				countZ += 1
 		else:
 			puke_error_log(697)
 
+		print "Round finished, waiting for next scan round in " + str(sleep_time) + " seconds."
+		print "#############################################################"
 		time.sleep(sleep_time)
 
 if __name__ == "__main__":

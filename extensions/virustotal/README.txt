@@ -11,7 +11,7 @@ Configuration: vito_config.py
 	- First you need to update your API KEY in (line 7)
 		personal_API_Key 
 		
-	- Update your Queue Syscheck folder: (for now we are trying in a fake folder with some queue files) (line 18)
+	- Update your Queue Syscheck folder (in absolute path)
 		syscheck_folder
 		
 	- Please check the file vito_config.py for more options

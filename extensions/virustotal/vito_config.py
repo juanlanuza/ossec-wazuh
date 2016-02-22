@@ -13,9 +13,9 @@ is_public_key = True
 frecuency_key = 15
 
 
-## Syscheck folder to watch
+## Syscheck folder to watch (Absolute path)
 ## By default in OSSEC is "/var/ossec/queue/syscheck/"
-syscheck_folder = "./syscheck/"
+syscheck_folder = "/var/ossec/queue/syscheck/"
 
 ## File for VirusTotal-Devel for Wazuh logs
 log_file = "log_vt"
