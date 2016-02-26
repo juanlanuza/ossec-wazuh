@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import time
-# import simplejson as json
 import json
 import urllib
 import urllib2
@@ -17,16 +16,15 @@ def get_queue_files():
 	# Check and filter results, all queue files are called: "(agent_name) 192.0.0.0->syscheck"
 	for file in os.listdir(syscheck_folder):
 		endings = ["-_syscheck", "->syscheck"]
-		if file[-10:] in endings:
+		if file[-10:] in endings or file == "syscheck":
 			file = syscheck_folder+file
 			list_files.append(file)
-
+		
 	return list_files
 
 # Scan queue file, line by line 
-def scan_queue_file(file_path, last_entry, countZ):
-	#examples, final version should be parametres: file_path, last_entry	
-
+def scan_queue_file(file_path, last_entry, countZ):	
+	
 	file = open( os.path.abspath( file_path ), 'r').readlines()
 	
 	if is_public_key:
@@ -34,25 +32,64 @@ def scan_queue_file(file_path, last_entry, countZ):
 
 	count = 0
 	update = False
+
+	if countZ == 0:
+		vt_sleep = False
+	else:
+		vt_sleep = True
+
+	hostname = file_path.split('/')[-1][:-10]
+	if len(hostname) < 1:
+		hostname = "OSSEC Server"
+
+	last_temp = last_entry[1]
+
 	for line in reversed(file):
-		line = line.split(':',5)		
-		md5sum = line[4]
-		date_and_name = line[5].split('!')[1]
-		# print "info this line:", md5sum, date_and_name
-		# example output: "1427747294 /home/user/myFiles/3.file"
+
+		try:
+			line = line.split(':',5)
+			md5sum = line[4]
+			date_and_name = line[5].split('!')[1]
+			# print "info this line:", md5sum, date_and_name
+			# example output: "1427747294 /home/user/myFiles/3.file"
+
+		except:
+			#Wrong syscheck database format
+			puke_local_error(hostname, 0, 0, 591)
+			vt_sleep = False
+			break
+
+		#data already checked, some previous problems analazing this db
+		if len(last_temp) > 0:
+			if last_temp == date_and_name:
+				last_temp = ""
+			continue
 
 		#checked already, leaving this agent syscheck file
-		if last_entry == date_and_name:
+		if last_entry[0] == date_and_name:
 			# print "EXIT FOR THIS FILE----------------------@\n"
 			break
 
-		if (countZ == 0 and count ==0) is False :
+		#Obtaining info
+		file_time = datetime.fromtimestamp(  int(date_and_name.split(' ')[0])  ).strftime('%Y-%m-%d %H:%M:%S')
+		file_name = date_and_name.split(' ',1)[1].strip()
+		
+
+		#Wrong md5sum, useless to send to vt
+		if len(md5sum) != 32:
+			#TODO create some log
+			puke_local_error(hostname, file_name, file_time, 590)
+			vt_sleep = False
+			continue
+
+		if vt_sleep is True :
 			time.sleep(frecuency_key)
 
 		if count == 0:
 			new_last_entry = date_and_name
 			update = True
 		count += 1
+		vt_sleep = True
 		
 		results_vt = retrieve_results_md5(md5sum, personal_API_Key)
 
@@ -65,23 +102,21 @@ def scan_queue_file(file_path, last_entry, countZ):
 			break
 			
 		else:
-			#Obtaining info
-			file_time = datetime.fromtimestamp(  int(date_and_name.split(' ')[0])  ).strftime('%Y-%m-%d %H:%M:%S')
-			file_name = file = date_and_name.split(' ')[1].strip()
-			hostname = file_path.split('/')[-1][:-10]
-			
+
 			if resp_code == 0:
 				#non data in vt
 				puke_noD_log(hostname, file_name, file_time)
 
 			elif resp_code == 1:
-				#data in vt
+				#data in vtapi
 				puke_log(hostname, file_name, file_time, results_vt)
 
-	
-	#if true: update_db(file_path, new_last_entry)
+		update_temp_db(hostname, date_and_name)
+
+	# Syscheck DB done, cleaning temp data 
+	# update_temp_db(hostname, "")
 	if update is True:
-		update_db(file_path, new_last_entry)
+		update_db(hostname, new_last_entry)
 
 #create a log from vt results
 def puke_log(hostname, file_name, file_time, log_json):
@@ -129,34 +164,59 @@ def puke_log(hostname, file_name, file_time, log_json):
 			" | Permalink: " + log_json.get("permalink") )
 
 	write_anylog( "[Time "+ time_now() + "] [Sender virustotal-devel]  [Message " + message + "]  [Host " + hostname + "]\n"  )
-
 	
 # Translate the percent of dangerousness to human text message
 # Switch case % for level of dangerousness
 def get_percent(prcnt):
 
-    if prcnt>=0 and prcnt<11:
-        return "0--10% Malicious file"
-    elif prcnt>10 and prcnt<31:
-        return "11-­30% Dangeruos file"
-    elif prcnt>30 and prcnt<61:
-        return "31-­60% Your system is in danger"
-    elif prcnt>60 and prcnt<101:
-        return "61-­100% you are fucked"
+    prcnt = int(float(prcnt))
+    if prcnt in range(0,10):
+        return " Malicious file"
+    elif prcnt in range(10,30):
+        return " Dangeruos file"
+    elif prcnt in range(30,60):
+        return " Very Dangeruos file"
+    elif prcnt in range(60,100):
+        return " Really Dangeruos file"
     else:
-        return "Error with percent!!"
-	
-	
-#create a error log, not internet connection or wrong VT API key
-# [Time 2016.02.03 20:44:04] [Sender virustotal-devel]  [Message ERROR 696: Not connection with VirusTotal DB, please check your internet connection or VirusTotal API Key]
-def puke_error_log(code):
+        return " Error with percent!!"
 
-	if code == 696:
+#create a global error log, not internet connection or wrong VT API key
+# [Time 2016.02.03 20:44:04] [Sender virustotal-devel]  [Message ERROR 696: Not connection with VirusTotal DB, please check your internet connection or VirusTotal API Key]
+def puke_error_log(code, add_info = ""):
+
+	message = ""
+
+
+	if code == 001:
+		message = "Code 001: virustotal-devel for wazuh has started"
+	elif code == 002:
+		message = "Code 002: New Syscheck DB found for agent: " + add_info
+	elif code == 003:
+		message = "Code 003: All Syscheck DBs scanned, next scan in " + str(add_info) + " seconds."
+	elif code == 696:
 		message = "ERROR 696: Not connection with VirusTotal DB, please check your internet connection or VirusTotal API Key"
 	elif code == 697:
 		message = "ERROR 697: Wrong API Key, please check your VirusTotal API Key"
+	elif code == 698:
+		message = "ERROR 698: Broken DB for virustotal-devel for wazuh, new DB created"
+	elif code == 699:
+		message = "ERROR 699: No DB for virustotal-devel for wazuh, new DB created"
+
 
 	write_anylog( "[Time "+ time_now() + "] [Sender virustotal-devel]  [Message " + message + "]\n" )
+
+#create a local error log
+# [Time 2016.02.03 20:44:04] [Sender virustotal-devel]  [Message Error in local data]  [Host Hostname]
+def puke_local_error(hostname, file_name, file_time, code = 0):
+
+	message = "ERROR in Syscheck DB"
+	if code == 590:
+		message = "ERROR 590: Wrong MD5 hash for " + file_name + " | Created date: " + file_time 
+	elif code == 591:
+		message = "ERROR 591: Not valid DB Syscheck format for agent: " + hostname  
+			 
+	write_anylog( "[Time "+ time_now() + "] [Sender virustotal-devel]  [Message " + message + "]  [Host " + hostname + "]\n"  )
 
 #create a no-data in VT log
 # [Time 2016.02.03 20:44:04] [Sender virustotal-devel]  [Message No Data in VirusTotal, please upload this file manually]  [Host Hostname]
@@ -196,7 +256,7 @@ def retrieve_results_md5(MD5, myPersonalKey):
 		response = urllib2.urlopen(req)
 		json_data = json.loads(response.read())
 
-		# print "File scanned"
+		# print "File scanned", json_data
 		return json_data
 
 	except:
@@ -207,7 +267,17 @@ def retrieve_results_md5(MD5, myPersonalKey):
 #extract previous last entry for this agent in our json db
 # if there is not any data for this agent, is going to create in our db
 def extract_last_entry(agent_path):
-	agent = agent_path.split('/')[-1]
+	agent = agent_path.split('/')[-1][:-10]
+	if len(agent) < 1:
+		agent = "OSSEC Server"
+
+	error = False
+
+	if not os.path.isfile(db_file):
+		with open(db_file, 'w+'):
+			puke_error_log(699)
+			error = True
+			
 
 	with open(db_file, 'r') as data_file:  
 
@@ -216,6 +286,7 @@ def extract_last_entry(agent_path):
 		except:
 			#DB is broken: Creating new emptly DB
 			tree_data = {u"agents": {} }
+			if error is False: puke_error_log(698)
 
 		agent_record = tree_data["agents"].get( agent )
 
@@ -224,10 +295,13 @@ def extract_last_entry(agent_path):
 			tree_data["agents"][ agent ] = {}
 			tree_data["agents"][ agent ]["last_entry"] = "None"
 			tree_data["agents"][ agent ]["FTS"] = time_now()
-			last_entry_found = None
+			tree_data["agents"][ agent ]["Temp"] = ""
+			last_entry_found = temp = ""
+			puke_error_log(002, agent)
 		
 		else:
 			last_entry_found = agent_record.get( "last_entry" )
+			temp = agent_record.get( "Temp" )
 
 		tree_data["agents"][ agent ]["LTS"] = time_now()
 
@@ -235,7 +309,7 @@ def extract_last_entry(agent_path):
 	with open(db_file, 'w') as f:
 		f.write(json.dumps(tree_data, indent=4))
 
-	return last_entry_found
+	return (last_entry_found, temp)
 
 #Get our Local configuration ####OBSOLOTE###
 def extract_vt_config():
@@ -249,14 +323,27 @@ def extract_vt_config():
 		return str(api_key), int(frec)
 
 #Update last entry checked in queue file for an agent 
-def update_db(agent_path, new_last_entry):
-	agent = agent_path.split('/')[-1]
+def update_db(agent, new_last_entry):
 
 	with open(db_file, 'r') as f:
 		tree_data = json.load(f)
 
 	with open(db_file, 'w+') as f:
 		tree_data["agents"][ agent ]["last_entry"] = new_last_entry
+		tree_data["agents"][ agent ]["LTS"] = time_now()
+		tree_data["agents"][ agent ]["Temp"] = ""
+		f.write(json.dumps(tree_data, indent=4))
+		f.close()
+
+#Update temp data:
+def update_temp_db(agent, temp_data):
+
+	with open(db_file, 'r') as f:
+		tree_data = json.load(f)
+
+	with open(db_file, 'w+') as f:
+		tree_data["agents"][ agent ]["Temp"] = temp_data
+		tree_data["agents"][ agent ]["LTS"] = time_now()
 		f.write(json.dumps(tree_data, indent=4))
 		f.close()
 
@@ -290,14 +377,15 @@ def summon_daemon():
 ############################################################################
 
 def main_vt():
+	puke_error_log(001)
 	while True:
-		print "Round starts here:\n"
+		print "\nRound starts here:"
 		countZ = 0
 
 		if len(personal_API_Key) == 64:
 			for queue_file in get_queue_files():
 				print "SCANING FILE: ", queue_file
-				print "LAST ENTRY FOUND: ", extract_last_entry(queue_file)
+				# print "LAST ENTRY FOUND: ", extract_last_entry(queue_file)
 				scan_queue_file(queue_file, extract_last_entry(queue_file), countZ)
 				print "-----------File scanned successfully-------------\n"
 				countZ += 1
@@ -306,6 +394,7 @@ def main_vt():
 
 		print "Round finished, waiting for next scan round in " + str(sleep_time) + " seconds."
 		print "#############################################################"
+		puke_error_log(003, sleep_time)
 		time.sleep(sleep_time)
 
 if __name__ == "__main__":
