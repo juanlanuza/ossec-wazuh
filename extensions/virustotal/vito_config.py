@@ -17,10 +17,10 @@ frecuency_key = 15
 ## By default in OSSEC is "/var/ossec/queue/syscheck/"
 syscheck_folder = "/var/ossec/queue/syscheck/"
 
-## File for VirusTotal-Devel for Wazuh logs
+## File for VirusTotal-Devel for Wazuh logs (Absolute or relative path)
 log_file = "log_vt"
 
-## Agents DB for VirusTotal-Devel for Wazuh
+## Agents DB for VirusTotal-Devel for Wazuh (Absolute or relative path)
 db_file = "local_data.json"
 
 ## Time (in secons) between scans in syscheck folder make by VirusTotal-Devel for Wazuh
