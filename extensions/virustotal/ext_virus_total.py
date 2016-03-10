@@ -135,7 +135,7 @@ def puke_log(hostname, file_name, file_time, log_json):
 	#Safe file, scan date:  2010-05-15 03:38:44 |/home/user/myFiles/6.file |Created date: 2015-03-30 22:28:14| Permalink: https... ]
 	elif plus == 0:
 		#Safe file
-		message = ( "Safe file, scan date: " + log_json.get("scan_date") + 
+		message = ( "Code 100: Safe file, scan date: " + log_json.get("scan_date") + 
 			" | " + file_name + 
 			" | Created date: " + file_time + 
 			" | Permalink: " + log_json.get("permalink") )
@@ -155,8 +155,8 @@ def puke_log(hostname, file_name, file_time, log_json):
 				scans_msg += i + ": " + log_json.get("scans").get(i).get("result") + ", "
 		scans_msg = scans_msg[:-2]
 
-		message = ( "Suspicious file identified. Ratio detected: " + str(pts) +"/"+ str(tot) +
-			" (" + str(percent) + "%" + percent_msg +
+		message = ( percent_msg[1] + percent_msg[0] + " identified. Ratio detected: " + str(pts) +"/"+ str(tot) +
+			" (" + str(percent) + "%" +
 			"), scan date: " + log_json.get("scan_date") + 
 			" | " + file_name + 
 			" | Created date: " + file_time + 
@@ -171,15 +171,15 @@ def get_percent(prcnt):
 
     prcnt = int(float(prcnt))
     if prcnt in range(0,10):
-        return " Malicious file"
+        return ": Malwarelicious file", "Alert 110"
     elif prcnt in range(10,30):
-        return " Dangeruos file"
+        return ": Dangerous file", "Alert 130"
     elif prcnt in range(30,60):
-        return " Very Dangeruos file"
+        return ": Very Dangerous file", "Alert 160"
     elif prcnt in range(60,100):
-        return " Really Dangeruos file"
+        return ": Really Dangerous file", "Alert 200"
     else:
-        return " Error with percent!!"
+        return ": Error with percent!!", "Alert 099"
 
 #create a global error log, not internet connection or wrong VT API key
 # [Time 2016.02.03 20:44:04] [Sender virustotal-devel]  [Message ERROR 696: Not connection with VirusTotal DB, please check your internet connection or VirusTotal API Key]
@@ -210,7 +210,7 @@ def puke_error_log(code, add_info = ""):
 # [Time 2016.02.03 20:44:04] [Sender virustotal-devel]  [Message Error in local data]  [Host Hostname]
 def puke_local_error(hostname, file_name, file_time, code = 0):
 
-	message = "ERROR in Syscheck DB"
+	message = "ERROR 000: Syscheck DB Error"
 	if code == 590:
 		message = "ERROR 590: Wrong MD5 hash for " + file_name + " | Created date: " + file_time 
 	elif code == 591:
@@ -221,7 +221,7 @@ def puke_local_error(hostname, file_name, file_time, code = 0):
 #create a no-data in VT log
 # [Time 2016.02.03 20:44:04] [Sender virustotal-devel]  [Message No Data in VirusTotal, please upload this file manually]  [Host Hostname]
 def puke_noD_log(hostname, file_name, file_time):
-	message = ("No Data in VirusTotal, please upload this file manually"
+	message = ("Code 098: No Data in VirusTotal, please upload this file manually"
 		" | " + file_name + 
 		" | Created date: " + file_time	)
 
