@@ -1,0 +1,183 @@
+<!-- @(#) $Id: ./etc/rules/virustotal_rules.xml, 2016/01/26 dcid Exp $
+
+  -  Official VirusTotal rules for OSSEC.
+  -
+  -  Copyright (C) 2009 Trend Micro Inc.
+  -  All rights reserved.
+  -
+  -  This program is a free software; you can redistribute it
+  -  and/or modify it under the terms of the GNU General Public
+  -  License (version 2) as published by the FSF - Free Software
+  -  Foundation.
+  -
+  -  License details: http://www.ossec.net/en/licensing.html
+  -->
+
+
+<group name="vt-log,syslog,">
+
+  <rule id="113400" level="0">
+    <decoded_as>vt-log</decoded_as>
+    <description>Grouping for the VirusTotal rules</description>
+  </rule>
+
+  <rule id="113401" level="3">
+    <if_sid>113400</if_sid>
+    <status>ERROR</status>
+    <description>Some ERROR in Syscheck DB</description>
+  </rule>
+
+
+  <rule id="113404" level="10">
+    <if_sid>113400</if_sid>
+    <extra_data>exe</extra_data>
+    <description>ALERT!! EXE file Positive!!!</description>
+  </rule>
+
+  <rule id="113405" level="10">
+    <if_sid>113400</if_sid>
+    <extra_data>deb|rpm</extra_data>
+    <description>ALERT!! DEB/RPM file Positive!!!</description>
+  </rule>
+
+  <rule id="113406" level="10">
+    <if_sid>113400</if_sid>
+    <extra_data>gz|zip</extra_data>
+    <description>ALERT!! ZIP/GZ file Positive!!!</description>
+  </rule>
+
+
+
+  <rule id="113418" level="1">
+    <if_sid>113400</if_sid>
+    <id>098</id>
+    <description>No Data about this file in VirusTotal DB</description>
+  </rule>
+
+  <rule id="113419" level="0">
+    <if_sid>113400</if_sid>
+    <id>100</id>
+    <description>Safe file found!</description>
+  </rule>
+
+  <rule id="113420" level="0">
+    <if_sid>113400</if_sid>
+    <id>001</id>
+    <description>VirusTotal-Devel for Wazuh has started</description>
+  </rule>
+
+  <rule id="113421" level="0">
+    <if_sid>113400</if_sid>
+    <id>699</id>
+    <description>No DB for virustotal-devel for wazuh, new DB created</description>
+  </rule>
+
+  <rule id="113422" level="0">
+    <if_sid>113400</if_sid>
+    <id>002</id>
+    <description>New Syscheck DB found for an agent</description>
+  </rule>
+
+  <rule id="113423" level="0">
+    <if_sid>113400</if_sid>
+    <id>003</id>
+    <description>All Syscheck DBs had been scanned</description>
+  </rule>
+
+  <rule id="113424" level="3">
+    <if_sid>113400</if_sid>
+    <id>000</id>
+    <description>Some ERROR in Syscheck DB</description>
+  </rule>
+
+  <rule id="113425" level="3">
+    <if_sid>113400</if_sid>
+    <id>590</id>
+    <description>Wrong MD5 hash for a file, VT-Devel can not process it.</description>
+  </rule>
+
+  <rule id="113426" level="3">
+    <if_sid>113400</if_sid>
+    <id>591</id>
+    <description>Not valid DB Syscheck format for an agent</description>
+  </rule>
+
+  <rule id="113427" level="7">
+    <if_sid>113400</if_sid>
+    <id>697</id>
+    <description>Wrong API Key detected in VirusTotal-devel for Wazuh</description>
+  </rule>
+
+
+  <rule id="113428" level="2">
+    <if_sid>113400</if_sid>
+    <id>696</id>
+    <description>No Data Connection with VT or wrong API Key</description>
+  </rule>
+
+  <rule id="113429" level="0">
+    <if_sid>113400</if_sid>
+    <id>698</id>
+    <description>Broken JSON DB for VT-devel, new one created</description>
+  </rule>
+
+
+
+  <rule id="113430" level="3">
+    <if_sid>113400</if_sid>
+    <id>099</id>
+    <description>Error calculating %</description>
+  </rule>
+
+  <rule id="113431" level="4">
+    <if_sid>113400</if_sid>
+    <id>110</id>
+    <description> 0-10% Malicious file</description>
+  </rule>
+
+  <rule id="113432" level="5">
+    <if_sid>113400</if_sid>
+    <id>130</id>
+    <description>10-30% Dangeruos file</description>
+  </rule>
+
+  <rule id="113433" level="6">
+    <if_sid>113400</if_sid>
+    <id>160</id>
+    <description>30-60% Very Dangeruos file</description>
+  </rule>
+
+  <rule id="113434" level="7">
+    <if_sid>113400</if_sid>
+    <id>200</id>
+    <description>60-100% Really Dangeruos file</description>
+  </rule>
+
+  <rule id="113435" level="11">
+    <if_sid>113404</if_sid>
+    <id>160|200</id>
+    <description>EXE Really Dangeruos file DETECTED 30-100%</description>
+  </rule>
+
+  <rule id="113436" level="11">
+    <if_sid>113405</if_sid>
+    <id>160|200</id>
+    <description>DEB/RPM Really Dangeruos file DETECTED 30-100%</description>
+  </rule>
+
+  <rule id="113437" level="11">
+    <if_sid>113406</if_sid>
+    <id>160|200</id>
+    <description>Compressed Really Dangeruos file DETECTED 30-100%</description>
+  </rule>
+
+
+
+
+
+
+
+</group> <!-- SYSLOG,virustotal-log -->
+
+
+<!-- EOF -->

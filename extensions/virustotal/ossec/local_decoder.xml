@@ -1,0 +1,48 @@
+<!--
+   - Allowed fields:
+   - location - where the log came from (only on FTS)
+   - srcuser  - extracts the source username
+   - dstuser  - extracts the destination (target) username
+   - user     - an alias to dstuser (only one of the two can be used)
+   - srcip    - source ip
+   - dstip    - dst ip
+   - srcport  - source port
+   - dstport  - destination port
+   - protocol - protocol
+   - id       - event id 
+   - url      - url of the event
+   - action   - event action (deny, drop, accept, etc)
+   - status   - event status (success, failure, etc)
+   - extra_data     - Any extra data
+  -->
+
+<!--Virustotal Exemple 
+  -[Time 2016.02.15 17:34:43] [Sender virustotal-devel] [Message Alert 160: Suspicious file identified. Ratio detected: 12/42 33.33% Dangerous!), scan date: 2012-04-28 08:19:41 | /home/user/myFiles/6.file | Created date: 2015-03-30 22:33:36 | Results: K7AntiVirus: Virus, F-Prot: W32/Virut.AI!Generic, TrendMicro-HouseCall: PE_VIRUX.J, Kaspersky: Virus.Win32.Suspic.gen, Emsisoft: Virus.Win32.Vitru!IK, Comodo: Virus.Win32.Virut.Ce, VIPRE: LooksLike.Win32.InfectedFile!A (v), TrendMicro: PE_VIRUX.J, Sophos: Sus/Scribble-B, Jiangmin: Win32/Virut.bp, ViRobot: Win32.Virut.AM, Commtouch: W32/Virut.AI!Generic, Ikarus: Virus.Win32.Vitru, AVG: Suspicion: unknown virus | Permalink: https://www.virustotal.com/file/61c6cba5f1724b95471109024ff00f3dad2d804a8c07bd2ef37dc1e5a38844a2/analysis/1335601181/] [Host (jessie72) 192.168.1.72]
+  
+  -[Time 2016.02.15 13:48:23] [Sender virustotal-devel]  [Message No Data in VirusTotal, please upload this file manually | C:\WINDOWS/win.ini | Created date: 2015-03-02 12:31:11]  [Host (agentnew) 192.168.1.70]
+  
+  -[Time 2016.02.15 13:49:17] [Sender virustotal-devel] [Message Safe file, scan date: 2015-04-08 17:02:12 | /home/user/myFiles/6.file | Created date: 2015-03-30 22:22:42 | Permalink: https://www.virustotal.com/file/ca7e3f3f3391b594650e7ba0fa4787c90bcd4a3abe5224c50c1d255a0a67a891/analysis/1428512532/] [Host (jessie72) 192.168.1.72]
+
+  -[Time 2016.02.15 17:52:56] [Sender virustotal-devel] [Message ERROR 697: Wrong API Key, please check your VirusTotal API Key]
+
+  [Time 2016.02.15 17:52:56] [Sender virustotal-devel] [Message Hola 848: Something went wrong] [Host (jessie72) 192.168.1.72]
+  --> 
+
+<decoder name="vt-log">
+  <program_name>virustotal-devel</program_name>
+</decoder>
+
+
+<decoder name="vt-alert">
+  <parent>vt-log</parent>
+  <prematch offset="after_parent">Alert</prematch>
+  <regex offset="after_prematch">(\d+):\.+\|\.+.(\.+)\s\|</regex>
+  <order>id, extra_data</order>
+</decoder>
+
+ <decoder name="vt-log-anyother">
+  <parent>vt-log</parent>
+  <regex>^(\w+) (\d+):</regex>
+  <order>status, id</order>
+</decoder>
+
