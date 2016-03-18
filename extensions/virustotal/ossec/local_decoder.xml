@@ -28,20 +28,20 @@
   [Time 2016.02.15 17:52:56] [Sender virustotal-devel] [Message Hola 848: Something went wrong] [Host (jessie72) 192.168.1.72]
   --> 
 
-<decoder name="vt-log">
+<decoder name="virustotal-log">
   <program_name>virustotal-devel</program_name>
 </decoder>
 
 
 <decoder name="vt-alert">
-  <parent>vt-log</parent>
+  <parent>virustotal-log</parent>
   <prematch offset="after_parent">Alert</prematch>
   <regex offset="after_prematch">(\d+):\.+\|\.+.(\.+)\s\|</regex>
   <order>id, extra_data</order>
 </decoder>
 
- <decoder name="vt-log-anyother">
-  <parent>vt-log</parent>
+ <decoder name="virustotal-anyother">
+  <parent>virustotal-log</parent>
   <regex>^(\w+) (\d+):</regex>
   <order>status, id</order>
 </decoder>
