@@ -14,10 +14,10 @@
   -->
 
 
-<group name="vt-log,syslog,">
+<group name="virustotal-log,syslog,">
 
   <rule id="113400" level="0">
-    <decoded_as>vt-log</decoded_as>
+    <decoded_as>virustotal-log</decoded_as>
     <description>Grouping for the VirusTotal rules</description>
   </rule>
 
@@ -31,19 +31,19 @@
   <rule id="113404" level="10">
     <if_sid>113400</if_sid>
     <extra_data>exe</extra_data>
-    <description>ALERT!! EXE file Positive!!!</description>
+    <description>EXE file Positive</description>
   </rule>
 
   <rule id="113405" level="10">
     <if_sid>113400</if_sid>
     <extra_data>deb|rpm</extra_data>
-    <description>ALERT!! DEB/RPM file Positive!!!</description>
+    <description>DEB/RPM file Positive</description>
   </rule>
 
   <rule id="113406" level="10">
     <if_sid>113400</if_sid>
     <extra_data>gz|zip</extra_data>
-    <description>ALERT!! ZIP/GZ file Positive!!!</description>
+    <description>ZIP/GZ file Positive</description>
   </rule>
 
 
@@ -57,7 +57,7 @@
   <rule id="113419" level="0">
     <if_sid>113400</if_sid>
     <id>100</id>
-    <description>Safe file found!</description>
+    <description>Safe file found</description>
   </rule>
 
   <rule id="113420" level="0">
@@ -81,7 +81,7 @@
   <rule id="113423" level="0">
     <if_sid>113400</if_sid>
     <id>003</id>
-    <description>All Syscheck DBs had been scanned</description>
+    <description>VirusTotal-Devel for Wazuh has ended</description>
   </rule>
 
   <rule id="113424" level="3">
@@ -93,7 +93,7 @@
   <rule id="113425" level="3">
     <if_sid>113400</if_sid>
     <id>590</id>
-    <description>Wrong MD5 hash for a file, VT-Devel can not process it.</description>
+    <description>Wrong MD5 hash for a file, VT-Devel can not process it</description>
   </rule>
 
   <rule id="113426" level="3">
