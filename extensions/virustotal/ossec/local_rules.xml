@@ -14,10 +14,10 @@
   -->
 
 
-<group name="virustotal-log,syslog,">
+<group name="virustotal,syslog,">
 
   <rule id="113400" level="0">
-    <decoded_as>virustotal-log</decoded_as>
+    <decoded_as>virustotal</decoded_as>
     <description>Grouping for the VirusTotal rules</description>
   </rule>
 
@@ -31,19 +31,19 @@
   <rule id="113404" level="10">
     <if_sid>113400</if_sid>
     <extra_data>exe</extra_data>
-    <description>EXE file Positive</description>
+    <description>EXE file Positive found in Syscheck DB</description>
   </rule>
 
   <rule id="113405" level="10">
     <if_sid>113400</if_sid>
     <extra_data>deb|rpm</extra_data>
-    <description>DEB/RPM file Positive</description>
+    <description>DEB/RPM file Positive found in Syscheck DB</description>
   </rule>
 
   <rule id="113406" level="10">
     <if_sid>113400</if_sid>
     <extra_data>gz|zip</extra_data>
-    <description>ZIP/GZ file Positive</description>
+    <description>ZIP/GZ file Positive found in Syscheck DB</description>
   </rule>
 
 
@@ -72,6 +72,12 @@
     <description>No DB for virustotal-devel for wazuh, new DB created</description>
   </rule>
 
+  <rule id="113438" level="5">
+    <if_sid>113400</if_sid>
+    <id>700</id>
+    <description>No Syscheck DBs found</description>
+  </rule>
+
   <rule id="113422" level="0">
     <if_sid>113400</if_sid>
     <id>002</id>
@@ -81,7 +87,7 @@
   <rule id="113423" level="0">
     <if_sid>113400</if_sid>
     <id>003</id>
-    <description>VirusTotal-Devel for Wazuh has ended</description>
+    <description>VirusTotal-Devel for Wazuh has finished to scan all Syscheck DBs</description>
   </rule>
 
   <rule id="113424" level="3">
@@ -93,7 +99,7 @@
   <rule id="113425" level="3">
     <if_sid>113400</if_sid>
     <id>590</id>
-    <description>Wrong MD5 hash for a file, VT-Devel can not process it</description>
+    <description>Wrong MD5 hash for a file, VT-Devel can not process it.</description>
   </rule>
 
   <rule id="113426" level="3">

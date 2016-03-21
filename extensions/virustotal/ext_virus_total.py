@@ -135,7 +135,7 @@ def puke_log(hostname, file_name, file_time, log_json):
 	#Safe file, scan date:  2010-05-15 03:38:44 |/home/user/myFiles/6.file |Created date: 2015-03-30 22:28:14| Permalink: https... ]
 	elif plus == 0:
 		#Safe file
-		message = ( "Code 100: Safe file, scan date: " + log_json.get("scan_date") + 
+		message = ( "Event 100: Safe file, scan date: " + log_json.get("scan_date") + 
 			" | " + file_name + 
 			" | Created date: " + file_time + 
 			" | Permalink: " + log_json.get("permalink") )
@@ -189,11 +189,11 @@ def puke_error_log(code, add_info = ""):
 
 
 	if code == 001:
-		message = "Code 001: virustotal-devel for wazuh has started"
+		message = "Event 001: virustotal-devel for wazuh has started"
 	elif code == 002:
-		message = "Code 002: New Syscheck DB found for agent: " + add_info
+		message = "Event 002: New Syscheck DB found for agent: " + add_info
 	elif code == 003:
-		message = "Code 003: All Syscheck DBs scanned, next scan in " + str(add_info) + " seconds."
+		message = "Event 003: All Syscheck DBs scanned, next scan in " + str(add_info) + " seconds."
 	elif code == 696:
 		message = "ERROR 696: Not connection with VirusTotal DB, please check your internet connection or VirusTotal API Key"
 	elif code == 697:
@@ -202,6 +202,8 @@ def puke_error_log(code, add_info = ""):
 		message = "ERROR 698: Broken DB for virustotal-devel for wazuh, new DB created"
 	elif code == 699:
 		message = "ERROR 699: No DB for virustotal-devel for wazuh, new DB created"
+	elif code == 700:
+		message = "ERROR 700: No Syscheck DBs found"
 
 
 	write_anylog( "[Time "+ time_now() + "] [Sender virustotal-devel]  [Message " + message + "]\n" )
@@ -221,7 +223,7 @@ def puke_local_error(hostname, file_name, file_time, code = 0):
 #create a no-data in VT log
 # [Time 2016.02.03 20:44:04] [Sender virustotal-devel]  [Message No Data in VirusTotal, please upload this file manually]  [Host Hostname]
 def puke_noD_log(hostname, file_name, file_time):
-	message = ("Code 098: No Data in VirusTotal, please upload this file manually"
+	message = ("Event 098: No Data in VirusTotal, please upload this file manually"
 		" | " + file_name + 
 		" | Created date: " + file_time	)
 
@@ -383,7 +385,11 @@ def main_vt():
 		countZ = 0
 
 		if len(personal_API_Key) == 64:
-			for queue_file in get_queue_files():
+			queue_fileS = get_queue_files()
+			if len(queue_fileS) < 1:
+				puke_error_log(700)
+
+			for queue_file in queue_fileS:
 				print "SCANING FILE: ", queue_file
 				# print "LAST ENTRY FOUND: ", extract_last_entry(queue_file)
 				scan_queue_file(queue_file, extract_last_entry(queue_file), countZ)
