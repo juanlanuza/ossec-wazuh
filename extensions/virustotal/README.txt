@@ -6,42 +6,70 @@ README:
 	
 ###
 
-Configuration: vito_config.py
+Introduction
 
-	- First you need to update your API KEY in (line 7)
-		personal_API_Key 
+	VirusTotal devel for OSSEC integrates OSSEC with Virus Total, the main goal is to consult all hash obtained by OSSEC against the Virus Total DB through its public API
+
+	Check if any changed file was infected with Virus or is clean in order to avoid in order to avoid unexpected system downtime, technical difficulties, or other interruptions!
+
+
+Instalation
+
+	VirusTotal devel for OSSEC requires you to have previously installed OSSEC as your manager and have root permitions on your System. You can download and install it following these instruction.
+
+	It is also needed to have intaled Python 2.7+, and at least join to VirusTotal Community, in this case you will have a limited check aginst VirusTotal DB of 15 minuts to avoid this you will need to have a VirusTotal Premium account
+
+	Python packages
+
+	The API uses Python to perform some tasks. Install in your system:
+
+    	Python 2.7+
+
+	Copy the API folder to OSSEC folder:
+
+Configuration
+
+	You can configure some parameters using the file vito_config.py:
+
+		- First you need to update your API KEY in (line 7)
+			personal_API_Key 
 		
-	- Update your Queue Syscheck folder (in absolute path)
-		syscheck_folder
-		
-	- Please check the file vito_config.py for more options
-		
-		
-Execute VirusTotal devel for OSSEC:
+		- Update your Queue Syscheck folder: (for now we are trying in a fake folder with some queue files) (line 18)
+			syscheck_folder
+
+
+    Paths:
+
+        -insert ext_virus_total from /virus_total/etc/default in /etc/default
+
+		-insert ext_virus_total.sh from /virus_total/etc/int.d in /etc/init.d
+
+	Logs
+
+    	logs: All events/logs can be checked in log_vt
+
+	By default you will have a certain range of rules and decoders that you can download on ... and we encourage you to develop your own rules and decoders and configure the existing ones according to your needs!
+		ex:
+		 <rule id="113425" level="3">
+    		<if_sid>113400</if_sid>
+    		<id>590</id>
+    		<description>Wrong MD5 hash for a file, VT-Devel can not process it.</description>
+  		</rule>
 	
-	$python ext_virus_total.py
-	
--The new way to execute the app
 
-	-from /virustotal/etc/default  copy the ext_virus_total file to /etc/default
+Executation
 
-	-In /etc/default/ext_virus_total change the variable (VT_HOME) that contains the path for the filr ext_virus_total.py 
-	-VT_HOME= path where you have downloaded the virustotal pacage (e.g VT_HOME=/home/user/Desktop/virustotal)
+	Execute VirusTotal devel for OSSEC:
 
-	-from /virustotal/etc/int.d copy the ext_virus_total.sh file to /etc/init.d
+		-insert ext_virus_total from /virus_total/etc/default in /etc/default
 
-	
-All events/logs can be checked in:
-	See some examples in:
-		log_vt
+		-insert ext_virus_total.sh from /virus_total/etc/int.d in /etc/init.d
 
-
-Logtest by OSSEC:
-
-	See some examples in:
-		LOGTEST_RESULTS.TXT
+		-The variable with the path for the file ext_virus_total.py must be filled in file ext_virus_total inside /etc/default
 		
+		-VT_HOME=/home/user/Desktop/virustotal
 
-See schematic process in and Malware sample MD5 list:
-	
-		logarithmo.txt
+
+Referene
+
+Request
