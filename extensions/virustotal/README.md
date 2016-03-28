@@ -1,10 +1,8 @@
 ##README: 
 
-###
 
 	VirusTotal devel for OSSEC
 	
-###
 
 ##Introduction
 
@@ -24,13 +22,13 @@
 	will have a limited check aginst VirusTotal DB of 15 minuts to avoid this you will need to have a VirusTotal
 	Premium account
 
-	Python packages
+	#Python packages
 
-	The API uses Python to perform some tasks. Install in your system:
+		The API uses Python to perform some tasks. Install in your system:
 
     	Python 2.7+
 
-	Copy the API folder to OSSEC folder:
+		Copy the API folder to OSSEC folder:
 
 ##Configuration
 
@@ -44,13 +42,13 @@
 			syscheck_folder
 
 
-    Paths:
+    #Paths:
 
         -insert ext_virus_total from /virus_total/etc/default in /etc/default
 
 		-insert ext_virus_total.sh from /virus_total/etc/int.d in /etc/init.d
 
-	Logs
+    #Logs
 
     	logs: All events/logs can be checked in log_vt
 
