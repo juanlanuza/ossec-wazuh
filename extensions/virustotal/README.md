@@ -16,10 +16,10 @@
 ##Instalation
 
 	VirusTotal devel for OSSEC requires you to have previously installed OSSEC as your manager and have root
-	permitions on your System. You can download and install it following these instruction.
+	permissions on your System. You can download and install it following these instruction.
 
-	It is also needed to have intaled Python 2.7+, and at least join to VirusTotal Community, in this case you
-	will have a limited check aginst VirusTotal DB of 15 minuts to avoid this you will need to have a VirusTotal
+	It is also needed to have instaled Python 2.7+, and at least join to VirusTotal Community, in this case you
+	will have a limited check aginst VirusTotal DB of 15 minutes to avoid this you will need to have a VirusTotal
 	Premium account
 
 	#Python packages
