@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import time
 import json
 import urllib
@@ -6,7 +7,11 @@ import urllib2
 import os
 from datetime import datetime
 from vito_config import *
+import sqlite3
+import threading
 
+
+sleep_flag = False
 
 # Scan folder searching queue files from syscheck in syscheck folder
 def get_queue_files(): 
@@ -22,101 +27,121 @@ def get_queue_files():
 		
 	return list_files
 
-# Scan queue file, line by line 
-def scan_queue_file(file_path, last_entry, countZ):	
+# Create Virustotal-Ossec DB if does not exist.
+def create_DB():
+
+	# Open VirustTotal DB
+	conn = sqlite3.connect(VirusTotal_DB)
+	cur = conn.cursor()
+
+	# Do some setup: Create tables if do not exist in DB
+	cur.executescript('''
+
+	CREATE TABLE IF NOT EXISTS Hostname (
+	    id     INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	    name   TEXT UNIQUE,
+	    FTS	   TEXT,
+	    LTS    TEXT,
+	    LEntry TEXT,
+	    Temp   TEXT
+	);
+
+	CREATE TABLE IF NOT EXISTS Queue (
+	    host_id     INTEGER,
+	    name_file  	TEXT,
+	    timestamp	INTEGER,
+	    md5			TEXT,
+	    PRIMARY KEY (host_id, timestamp, md5)
+	)
+
+	''')
+
+	global_commit(conn)
+
+# Scan queue file, line by line, and add to internal DB
+def scan_queue_file(file_path):	
 	
 	file = open( os.path.abspath( file_path ), 'r').readlines()
-	
-	if is_public_key:
-		frecuency_key = 15
 
-	count = 0
-	update = False
+	update_DB = False
 
-	if countZ == 0:
-		vt_sleep = False
-	else:
-		vt_sleep = True
+	count_lines = 0
+	info_update = ""
 
+	# Open VirustTotal DB
+	conn = sqlite3.connect(VirusTotal_DB)
+	conn.text_factory = str
+	cur = conn.cursor()
+
+
+	# Get hostname's name
 	hostname = file_path.split('/')[-1][:-10]
 	if len(hostname) < 1:
 		hostname = "OSSEC Server"
 
-	last_temp = last_entry[1]
+	
+	# Search and select data about hostname in DB
+	cur.execute('SELECT id, LEntry FROM Hostname WHERE name = ? ', (hostname, ))
+	
+	try:
+		host_id = cur.fetchone()[0]
+	except:
+		host_id = None
+
+	# Add new entry in DB, if hostname seem for first time.
+	if host_id is None:
+		cur.execute('''INSERT OR IGNORE INTO Hostname (name, FTS) VALUES ( ?, ? )''', ( hostname, time_now()) )
+
+		update_DB = True
+
+		cur.execute('SELECT id, LEntry FROM Hostname WHERE name = ? ', (hostname, )) 
+		host_id, last_entry = cur.fetchone()
+
+	else:
+		cur.execute('SELECT LEntry FROM Hostname WHERE id = ? ', (host_id, ))
+		last_entry = cur.fetchone()[0]
+
+	if last_entry is None:
+		last_entry = ""
+
+	# Update Last time seem in DB
+	conn.execute('''UPDATE Hostname SET LTS = ? WHERE id = ?''', (time_now(), host_id)	)
 
 	for line in reversed(file):
+
+		count_lines += 1
 
 		try:
 			line = line.split(':',5)
 			md5sum = line[4]
 			date_and_name = line[5].split('!')[1]
-			# print "info this line:", md5sum, date_and_name
-			# example output: "1427747294 /home/user/myFiles/3.file"
+
+			if date_and_name.strip() == last_entry.strip():
+				# print "Data already register in DB, leaving Syscheck File.....@\n"
+				break
+			
+			if count_lines == 1:
+				info_update = date_and_name
+				update_DB = True
+
+
+			file_time = date_and_name.split(' ')[0]
+			file_name = date_and_name.split(' ',1)[1].strip()
 
 		except:
 			#Wrong syscheck database format
 			puke_local_error(hostname, 0, 0, 591)
-			vt_sleep = False
+			update_DB = False
 			break
 
-		#data already checked, some previous problems analazing this db
-		if len(last_temp) > 0:
-			if last_temp == date_and_name:
-				last_temp = ""
-			continue
+		cur.execute('''INSERT OR IGNORE INTO Queue
+			(host_id, name_file, timestamp, md5) VALUES ( ?, ?, ?, ?)''', 
+			( host_id, file_name, file_time, md5sum ) )
 
-		#checked already, leaving this agent syscheck file
-		if last_entry[0] == date_and_name:
-			# print "EXIT FOR THIS FILE----------------------@\n"
-			break
-
-		#Obtaining info
-		file_time = datetime.fromtimestamp(  int(date_and_name.split(' ')[0])  ).strftime('%Y-%m-%d %H:%M:%S')
-		file_name = date_and_name.split(' ',1)[1].strip()
-		
-
-		#Wrong md5sum, useless to send to vt
-		if len(md5sum) != 32:
-			#TODO create some log
-			puke_local_error(hostname, file_name, file_time, 590)
-			vt_sleep = False
-			continue
-
-		if vt_sleep is True :
-			time.sleep(frecuency_key)
-
-		if count == 0:
-			new_last_entry = date_and_name
-			update = True
-		count += 1
-		vt_sleep = True
-		
-		results_vt = retrieve_results_md5(md5sum, personal_API_Key)
-
-		resp_code = results_vt.get("response_code")
-
-		if resp_code == -1:
-			#Something went wrong ... aborting scan
-			puke_error_log(696)
-			update = False
-			break
-			
-		else:
-
-			if resp_code == 0:
-				#non data in vt
-				puke_noD_log(hostname, file_name, file_time)
-
-			elif resp_code == 1:
-				#data in vtapi
-				puke_log(hostname, file_name, file_time, results_vt)
-
-		update_temp_db(hostname, date_and_name)
-
-	# Syscheck DB done, cleaning temp data 
-	# update_temp_db(hostname, "")
-	if update is True:
-		update_db(hostname, new_last_entry)
+	if update_DB is True:
+		conn.execute('''UPDATE Hostname SET LEntry = ? WHERE id = ?''', (info_update, host_id)	)
+	
+	global_commit(conn)
 
 #create a log from vt results
 def puke_log(hostname, file_name, file_time, log_json):
@@ -135,10 +160,11 @@ def puke_log(hostname, file_name, file_time, log_json):
 	#Safe file, scan date:  2010-05-15 03:38:44 |/home/user/myFiles/6.file |Created date: 2015-03-30 22:28:14| Permalink: https... ]
 	elif plus == 0:
 		#Safe file
+		
 		message = ( "Event 100: Safe file, scan date: " + log_json.get("scan_date") + 
-			" | " + file_name + 
-			" | Created date: " + file_time + 
-			" | Permalink: " + log_json.get("permalink") )
+			" | " + unicode(file_name, "utf-8") + 
+			" | Created date: " + file_time + " | Permalink: " + log_json.get("permalink") )
+
 
 	#Suspicious file identified. Ratio detected: 32/45 (% message), 2010-05-15|/h/u/file |Created date: 2015-03-30| Results: Avira: TrojanV, Panda: TrojanZ ... | Permalink: https...
 	else:
@@ -194,6 +220,10 @@ def puke_error_log(code, add_info = ""):
 		message = "Event 002: New Syscheck DB found for agent: " + add_info
 	elif code == 003:
 		message = "Event 003: All Syscheck DBs scanned, next scan in " + str(add_info) + " seconds."
+	elif code == 004:
+		message = "Event 004: New Service/Daemon process started, PID: " + str(add_info)
+	elif code == 005:
+		message = "Event 005: " + add_info
 	elif code == 696:
 		message = "ERROR 696: Not connection with VirusTotal DB, please check your internet connection or VirusTotal API Key"
 	elif code == 697:
@@ -231,6 +261,8 @@ def puke_noD_log(hostname, file_name, file_time):
 
 #write a log in our log file "./log_vt
 def write_anylog(log_string):
+
+	# log_string = log_string.encode("utf-8")
 	
 	with open(log_file, 'ab') as data_file:
 		data_file.write(log_string)
@@ -266,105 +298,166 @@ def retrieve_results_md5(MD5, myPersonalKey):
 		# return False
 		return {u'response_code': -1, u'more_info': u'error connection with VirusTotal DB, please check your internet connection or VirusTotal API Key'}
 
-#extract previous last entry for this agent in our json db
-# if there is not any data for this agent, is going to create in our db
-def extract_last_entry(agent_path):
-	agent = agent_path.split('/')[-1][:-10]
-	if len(agent) < 1:
-		agent = "OSSEC Server"
+# Function to commit DB and avoid possible threading problems
+def global_commit(connection):
 
-	error = False
+	global sleep_flag
 
-	if not os.path.isfile(db_file):
-		with open(db_file, 'w+'):
-			puke_error_log(699)
-			error = True
-			
+	try:
+		while sleep_flag is True:
+			pass
+		connection.commit()
+		sleep_flag = True
+		time.sleep(0.1)
+		sleep_flag = False
 
-	with open(db_file, 'r') as data_file:  
+	except:
+		time.sleep(0.5)
+		global_commit(connection)
 
-		try:
-			tree_data = json.load(data_file)
-		except:
-			#DB is broken: Creating new emptly DB
-			tree_data = {u"agents": {} }
-			if error is False: puke_error_log(698)
+#This thread will scan Syscheck folder and files, registering all data in a local DB. 
+def syscheck_scanner():
+	create_DB()
+	while True:
 
-		agent_record = tree_data["agents"].get( agent )
+		queue_fileS = get_queue_files()
 
-		#If no data in DB for this agent: Creating from scratch
-		if agent_record == None:
-			tree_data["agents"][ agent ] = {}
-			tree_data["agents"][ agent ]["last_entry"] = "None"
-			tree_data["agents"][ agent ]["FTS"] = time_now()
-			tree_data["agents"][ agent ]["Temp"] = ""
-			last_entry_found = temp = ""
-			puke_error_log(002, agent)
-		
+		# No Syschek files.
+		if len(queue_fileS) < 1:
+			puke_error_log(700)
+
+		# Scanning Syscheck files.
+		for queue_file in queue_fileS:
+			scan_queue_file(queue_file)
+			# print "-----------File scanned successfully-------------\n"
+
+		# print "Round finished, waiting for next scan round in " + str(sleep_time) + " seconds."
+		puke_error_log(003, sleep_time)
+		time.sleep(sleep_time)
+
+# Function create to scan the local virusTotal DB (sql)
+def db_scanning():
+
+	if is_public_key:
+		frecuency_key = 15
+
+	vt_sleep = False
+
+	while True:
+
+		if vt_sleep is True :
+			time.sleep(frecuency_key)
+
+		# Check Virus Total API Key
+		if len(personal_API_Key) == 64:
+
+			# Open VirustTotal DB
+			conn = sqlite3.connect(VirusTotal_DB)
+			conn.text_factory = str
+			cur = conn.cursor()
+
+			# Search the oldest register in DB
+			cur.execute('SELECT min(timestamp), md5, name_file, Hostname.name FROM Queue JOIN Hostname ON Queue.host_id = Hostname.id;' )
+			timestamp, md5sum, name_file, hostname = cur.fetchone()
+
+			# print "Scanning:", name_file, "from:", hostname, timestamp
+
+			if md5sum is None:
+				if name_file is None:
+					time.sleep(sleep_time)
+				continue
+
+
+			# Converting timestamp to readable format
+			file_time = datetime.fromtimestamp(  timestamp ).strftime('%Y-%m-%d %H:%M:%S')
+
+			# If Wrong md5sum, useless to send to vt
+			if len(md5sum) != 32:
+				puke_local_error(hostname, name_file, file_time, 590)
+				vt_sleep = False
+				cur.execute('''DELETE FROM Queue WHERE md5 = ? AND timestamp = ? AND 
+					name_file=?''', ( md5sum, timestamp, name_file))
+				global_commit(conn)
+				print "wrong md5 deleting entry:", name_file, "from:", hostname
+				continue
+
+			# Connecting with VirusTotal Site
+			results_vt = retrieve_results_md5(md5sum, personal_API_Key)
+			vt_sleep = True
+
+			# Parsing results from VirusTotal
+			resp_code = results_vt.get("response_code")
+
+			if resp_code == -1:
+				# Something wrong, Not connection with VirusTotal DB or Invalid VirusTotal API Key ... aborting scan
+				puke_error_log(696)
+				print "resp_code -1"
+				
+				global_commit(conn)
+
+				time.sleep(sleep_time)
+				continue
+				
+			else:
+
+				if resp_code == 0:
+					#non data in vt
+					puke_noD_log(hostname, name_file, file_time)
+
+				elif resp_code == 1:
+					#data in vtapi
+					puke_log(hostname, name_file, file_time, results_vt)
+
+				cur.execute('''DELETE FROM Queue WHERE md5 = ? AND timestamp = ? AND 
+					name_file=?''', ( md5sum, timestamp, name_file))	
+
+				global_commit(conn)
+
 		else:
-			last_entry_found = agent_record.get( "last_entry" )
-			temp = agent_record.get( "Temp" )
+			# Wrong API Key
+			puke_error_log(697)
+			break
 
-		tree_data["agents"][ agent ]["LTS"] = time_now()
-
-
-	with open(db_file, 'w') as f:
-		f.write(json.dumps(tree_data, indent=4))
-
-	return (last_entry_found, temp)
-
-#Get our Local configuration ####OBSOLOTE###
-def extract_vt_config():
-	with open('local_data.json', 'r') as data_file:  
-		tree_data = json.load(data_file)
-		api_key = tree_data["local_conf_vt"]["API_Key"]
-		if tree_data["local_conf_vt"]["public_KEY"] == "True":
-			frec = 15
-		else:
-			frec = tree_data["local_conf_vt"]["frecuency"]
-		return str(api_key), int(frec)
-
-#Update last entry checked in queue file for an agent 
-def update_db(agent, new_last_entry):
-
-	with open(db_file, 'r') as f:
-		tree_data = json.load(f)
-
-	with open(db_file, 'w+') as f:
-		tree_data["agents"][ agent ]["last_entry"] = new_last_entry
-		tree_data["agents"][ agent ]["LTS"] = time_now()
-		tree_data["agents"][ agent ]["Temp"] = ""
-		f.write(json.dumps(tree_data, indent=4))
-		f.close()
-
-#Update temp data:
-def update_temp_db(agent, temp_data):
-
-	with open(db_file, 'r') as f:
-		tree_data = json.load(f)
-
-	with open(db_file, 'w+') as f:
-		tree_data["agents"][ agent ]["Temp"] = temp_data
-		tree_data["agents"][ agent ]["LTS"] = time_now()
-		f.write(json.dumps(tree_data, indent=4))
-		f.close()
-
-# This function create a service/Daemon that will execute a det. task
+# This function create a service/Daemon that will execute a both tasks in multithreading
 def summon_daemon():
 
   	try:
 		# Store the Fork PID
 		pid = os.fork()
-
 		
 		if pid > 0:
-			print 'PID: %d' % pid
+			# print 'PID: %d' % pid
+			puke_error_log(004, pid)
 			os._exit(0)
 
 	except OSError, error:
-		print 'Unable to fork. Error: %d (%s)' % (error.errno, error.strerror)
+		# print 'Unable to fork. Error: %d (%s)' % (error.errno, error.strerror)
 		os._exit(1)
-	main_vt()
+		puke_error_log(005, 'Unable to fork. Error: %d (%s)' % (error.errno, error.strerror) )
+	puke_error_log(001)
+
+	# Create new threads
+	thread1 = virusTotal_thread(1, "scan_syscheck")
+	thread2 = virusTotal_thread(2, "send_to_vt")
+
+	# Start new Threads
+	thread1.start()
+	time.sleep(5)
+	thread2.start()
+
+# VirusTotal-Wazuh Threads
+class virusTotal_thread (threading.Thread):
+    def __init__(self, threadID, name):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+    def run(self):
+        # print "Starting " + self.name
+        if self.name == "scan_syscheck":
+        	syscheck_scanner()
+        if self.name == "send_to_vt":
+        	db_scanning()
+        
 
 ############################################################################
 ############################################################################
@@ -378,30 +471,7 @@ def summon_daemon():
 ############################################################################
 ############################################################################
 
-def main_vt():
-	puke_error_log(001)
-	while True:
-		print "\nRound starts here:"
-		countZ = 0
 
-		if len(personal_API_Key) == 64:
-			queue_fileS = get_queue_files()
-			if len(queue_fileS) < 1:
-				puke_error_log(700)
-
-			for queue_file in queue_fileS:
-				print "SCANING FILE: ", queue_file
-				# print "LAST ENTRY FOUND: ", extract_last_entry(queue_file)
-				scan_queue_file(queue_file, extract_last_entry(queue_file), countZ)
-				print "-----------File scanned successfully-------------\n"
-				countZ += 1
-		else:
-			puke_error_log(697)
-
-		print "Round finished, waiting for next scan round in " + str(sleep_time) + " seconds."
-		print "#############################################################"
-		puke_error_log(003, sleep_time)
-		time.sleep(sleep_time)
 
 if __name__ == "__main__":
 	summon_daemon()

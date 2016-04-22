@@ -1,47 +1,71 @@
 README: 
 
-###
+Introduction
 
-	VirusTotal devel for OSSEC
-	
-###
+	VirusTotal devel for OSSEC is a Python module that integrates OSSEC with Virustotal, the main goal is to consult all Hashes obtained by Syscheck against the Virustotal DB, a free service that analyzes files from malwares.
 
-Configuration: vito_config.py
+	Check if any new or changed file was infected with Malware or Virus in order to avoid unexpected system downtime, technical difficulties, or other interruptions!
 
-	- First you need to update your API KEY in (line 7)
-		personal_API_Key 
+Requisites
+
+	You need to get an API key to use the VirusTotal Public API 2.0. To do so, just sign-up on the service, go to your profile and click on API Key.
+
+	*** Virustotal Public Key is limited to at most 4 requests per minute.
+
+	You also need to have installed manager’s Wazuh HIDS.
+
+	And finally you need at least up Python 2.7 in order to execute VirusTotal devel for OSSEC.
+
+Install
+
+	You need to copy files from github in some folder in your machine.
+	virustotal-ossec.py: Main file program
+	vito_config.py: Configuration file
+
+	You need to copy rules/decoders into the right Ossec folder
+	virustotal_rules.xml into /var/ossec/rules/
+	virustotal_decoders.xml into /var/ossec/etc/wazuh_decoders/
+
+	Update your ossec.conf file in /var/ossec/etc/ossec.conf
+	For your new rules: 
+
+	<include>virustotal_rules.xml</include>
+
+	Add log_file (see Configuration step) as localfile to monitor, for ex:
+
+	  <localfile>
+		<log_format>syslog</log_format>
+		<location>/home/user/Desktop/virustotal/virustotal_log.txt</location>
+	  </localfile>
+
+
+Configuration
+
+	You will need to configure some parameters into configuration file vito_config.py:
+
+		- First you need to update your API KEY: personal_API_Key 
+		- Update your Queue Syscheck folder: syscheck_folder
+
+	Then, if you wish, you can configure others parameters:
+		log_file: File for VirusTotal-Devel for Wazuh logs (Absolute or relative path)
+		db_file: Agents DB for VirusTotal-Devel for Wazuh (Absolute or relative path)
+		sleep_time: Time (in seconds) between scans in syscheck folder
+			
 		
-	- Update your Queue Syscheck folder (in absolute path)
-		syscheck_folder
+Running
+
+	To run VirusTotal devel for OSSEC you just need to execute the file virustotal-ossec.py with Python.
+
+		$ python virustotal-ossec.py
 		
-	- Please check the file vito_config.py for more options
-		
-		
-Execute VirusTotal devel for OSSEC:
-	
-	$python ext_virus_total.py
-	
--The new way to execute the app
+Alerts
 
-	-from /virustotal/etc/default  copy the ext_virus_total file to /etc/default
+	By default you will have a certain range of rules and decoders that you can download on ... and we encourage you to develop your own rules and decoders and configure the existing ones according to your needs!
 
-	-In /etc/default/ext_virus_total change the variable (VT_HOME) that contains the path for the filr ext_virus_total.py 
-	-VT_HOME= path where you have downloaded the virustotal pacage (e.g VT_HOME=/home/user/Desktop/virustotal)
-
-	-from /virustotal/etc/int.d copy the ext_virus_total.sh file to /etc/init.d
-
-	
-All events/logs can be checked in:
-	See some examples in:
-		log_vt
+		<rule id="113425" level="3">
+			<if_sid>113400</if_sid>
+			<id>590</id>
+			<description>Wrong MD5 hash for a file, VT-Devel can not process it.</description>
+		</rule>
 
 
-Logtest by OSSEC:
-
-	See some examples in:
-		LOGTEST_RESULTS.TXT
-		
-
-See schematic process in and Malware sample MD5 list:
-	
-		logarithmo.txt

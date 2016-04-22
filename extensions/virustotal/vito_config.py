@@ -4,7 +4,8 @@
 
 
 ## Get your key in virustotal.com
-personal_API_Key = "###"
+personal_API_Key = ""
+
 
 
 ## Public keys are free --> limitations: a scan every 15 seconds
@@ -18,23 +19,19 @@ frecuency_key = 15
 syscheck_folder = "/var/ossec/queue/syscheck/"
 
 ## File for VirusTotal-Devel for Wazuh logs (Absolute or relative path)
-log_file = "log_vt"
+log_file = "zlog_micro.txt"
 
 ## Agents DB for VirusTotal-Devel for Wazuh (Absolute or relative path)
-db_file = "local_data.json"
+VirusTotal_DB = "zVTotal.sqlite"
 
-## Time (in secons) between scans in syscheck folder make by VirusTotal-Devel for Wazuh
-sleep_time = 60
+## Time (in seconds) between scans in syscheck folder make by VirusTotal-Devel for Wazuh
+sleep_time = 600
 
 
 #####
 ## 		Personalize your log
 #####
 
-
-## Analisys results, antivirus and virus detected names
-is_result = True
-
-## Link to virustotal website with full info about specific file
-is_permalink = True
-
+#
+# Coming soon!
+#
