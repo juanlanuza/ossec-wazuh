@@ -1,84 +1,72 @@
 ##README: 
-
-
-	VirusTotal devel for OSSEC
-	
+=========
 
 ##Introduction
 
-	VirusTotal devel for OSSEC integrates OSSEC with Virus Total, the main goal is to consult all hash obtained
-	by OSSEC against the Virus Total DB through its public API
+	VirusTotal devel for OSSEC is a Python module that integrates OSSEC with Virustotal, the main goal is to consult all Hashes obtained by Syscheck against the Virustotal DB, a free service that analyzes files from malwares.
 
-	Check if any changed file was infected with Virus or is clean in order to avoid in order to avoid unexpected
-	system downtime, technical difficulties, or other interruptions!
+	Check if any new or changed file was infected with Malware or Virus in order to avoid unexpected system downtime, technical difficulties, or other interruptions!
 
+##Requisites
 
-##Instalation
+	You need to get an API key to use the VirusTotal Public API 2.0. To do so, just sign-up on the service, go to your profile and click on API Key.
 
-	VirusTotal devel for OSSEC requires you to have previously installed OSSEC as your manager and have root
-	permissions on your System. You can download and install it following these instruction.
+	*** Virustotal Public Key is limited to at most 4 requests per minute.
 
-	It is also needed to have instaled Python 2.7+, and at least join to VirusTotal Community, in this case you
-	will have a limited check aginst VirusTotal DB of 15 minutes to avoid this you will need to have a VirusTotal
-	Premium account
+	You also need to have installed manager’s Wazuh HIDS.
 
-	#Python packages
+	And finally you need at least up Python 2.7 in order to execute VirusTotal devel for OSSEC.
 
-		The API uses Python to perform some tasks. Install in your system:
+##Install
 
-    	Python 2.7+
+	* You need to copy files from github in some folder in your machine.
+		virustotal-ossec.py: Main file program
+		vito_config.py: Configuration file
 
-		Copy the API folder to OSSEC folder:
+	* You need to copy rules/decoders into the right Ossec folder
+		virustotal_rules.xml into `/var/ossec/rules/`
+		virustotal_decoders.xml into `/var/ossec/etc/wazuh_decoders/`
+
+	* Update your ossec.conf file in `/var/ossec/etc/ossec.conf`
+		For your new rules: 
+
+		<include>virustotal_rules.xml</include>
+
+	* Add log_file (see Configuration step) as localfile to monitor, for ex:
+
+		  <localfile>
+			<log_format>syslog</log_format>
+			<location>/home/user/Desktop/virustotal/virustotal_log.txt</location>
+		  </localfile>
+
 
 ##Configuration
 
-	You can configure some parameters using the file vito_config.py:
+	* You will need to configure some parameters into configuration file vito_config.py:
 
-		- First you need to update your API KEY in (line 7)
-			personal_API_Key 
+		- First you need to update your API KEY: personal_API_Key 
+		- Update your Queue Syscheck folder: syscheck_folder
+
+	* Then, if you wish, you can configure others parameters:
+		log_file: File for VirusTotal-Devel for Wazuh logs (Absolute or relative path)
+		db_file: Agents DB for VirusTotal-Devel for Wazuh (Absolute or relative path)
+		sleep_time: Time (in seconds) between scans in syscheck folder
+			
 		
-		- Update your Queue Syscheck folder: (for now we are trying in a fake folder with some 
-		queue files) (line 18)
-			syscheck_folder
+##Running
 
+	To run VirusTotal devel for OSSEC you just need to execute the file virustotal-ossec.py with Python.
 
-    #Paths:
+		`$ python virustotal-ossec.py`
+		
+##Alerts
 
-        -insert ext_virus_total from /virus_total/etc/default in /etc/default
+	By default you will have a certain range of rules and decoders that you can download on ... and we encourage you to develop your own rules and decoders and configure the existing ones according to your needs!
 
-		-insert ext_virus_total.sh from /virus_total/etc/int.d in /etc/init.d
-
-    #Logs
-
-    	logs: All events/logs can be checked in log_vt
-
-	By default you will have a certain range of rules and decoders that you can download on ... and 
-	we encourage you to develop your own rules and decoders and configure the existing ones according
-	to your needs!
-		ex:
 		<rule id="113425" level="3">
-    			<if_sid>113400</if_sid>
-    			<id>590</id>
-    			<description>Wrong MD5 hash for a file, VT-Devel can not process it.</description>
-  		</rule>
-	
-
-##Executation
-
-	Execute VirusTotal devel for OSSEC:
-
-		-insert ext_virus_total from /virus_total/etc/default in /etc/default
-
-		-insert ext_virus_total.sh from /virus_total/etc/int.d in /etc/init.d
-
-		-The variable with the path for the file ext_virus_total.py must be filled in file 
-		ext_virus_total inside /etc/default
-		
-		-VT_HOME=/home/user/Desktop/virustotal
+			<if_sid>113400</if_sid>
+			<id>590</id>
+			<description>Wrong MD5 hash for a file, VT-Devel can not process it.</description>
+		</rule>
 
 
-##Referene
-	To be complete..
-	
-##Request
-	To be complete..
